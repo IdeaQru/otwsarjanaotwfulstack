@@ -1,0 +1,63 @@
+// import net from 'net';
+// import AisDecoder from 'ais-stream-decoder';
+
+// const HOST = '103.24.49.246';
+// const AIS_PORT = 34567;
+
+// const parser = new AisDecoder();
+// let latestDecodedData: any = null;
+// let buffer = '';
+
+// const client = new net.Socket();
+
+// client.connect(AIS_PORT, HOST, () => {
+//   console.log(`Connected to ${HOST}:${AIS_PORT}`);
+//   client.write('Hello, server! Love, Client.');
+// });
+
+// parser.on('data', (data) => {
+//   console.log('Decoded AIS Data:', data);
+//   latestDecodedData = data;
+// });
+
+// parser.on('error', (err) => {
+//   console.error('AIS Decoder Error:', err);
+// });
+
+// client.on('data', (data) => {
+//   console.log('Raw data received from server:', data.toString());
+//   buffer += data.toString();
+//   console.log('Current buffer state:', buffer);
+//   let lines = buffer.split('\n');
+//   buffer = lines.pop()!;
+//   console.log('Buffer after split, keeping last partial line:', buffer);
+//   lines.forEach((line) => {
+//     console.log('Processing line:', line);
+//     if (isValidNmea(line.trim())) {
+//       try {
+//         parser.write(line.trim());
+//       } catch (err) {
+//         console.error('Failed to decode line:', line, 'Error:', err);
+//       }
+//     } else {
+//       console.error('Invalid NMEA data:', line);
+//     }
+//   });
+// });
+
+// client.on('close', () => {
+//   console.log('Connection closed');
+// });
+
+// client.on('error', (err) => {
+//   console.error(`Error: ${err.message}`);
+// });
+
+// export function getLatestDecodedData() {
+//   return latestDecodedData;
+// }
+
+// function isValidNmea(data: string): boolean {
+//   // NMEA sentences usually start with $ or !
+//   return data.startsWith('$') || data.startsWith('!');
+// }
