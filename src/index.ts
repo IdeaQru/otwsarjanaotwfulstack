@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import http from 'http';
-import { Server as SocketIOServer } from 'socket.io'; // Import socket.io
+import { Server as SocketIOServer } from 'socket.io';
 import aisRoutes from './routes/aisRoutes'; // Pastikan ini diimpor dari file yang benar
 import shapeRoutes from './routes/shapeRoutes'; // Pastikan ini diimpor dari file yang benar
 import aisDataRouter from './controllers/aisDataController';
@@ -11,9 +11,15 @@ import connectDB from './config/database'; // Pastikan jalur ini benar
 // Inisialisasi Express
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // Untuk memparsing JSON dari body request
+// Middleware untuk mengatasi CORS
+app.use(cors({
+  origin: 'http://103.24.48.92', // Ganti dengan domain atau IP frontend Anda
+  methods: ['GET', 'POST'],
+  credentials: true // Jika menggunakan kredensial seperti cookie, ubah ini menjadi true
+}));
+
+// Middleware untuk memparsing JSON dari body request
+app.use(express.json());
 
 // Sajikan file statis dari direktori 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,7 +36,7 @@ connectDB();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: '*', // Ganti dengan origin yang sesuai
+    origin: 'http://103.24.48.92', // Ganti dengan domain atau IP frontend Anda
     methods: ['GET', 'POST']
   }
 });
