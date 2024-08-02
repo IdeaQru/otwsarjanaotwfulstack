@@ -3,30 +3,27 @@ import path from 'path';
 import cors from 'cors';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import aisRoutes from './routes/aisRoutes'; // Pastikan ini diimpor dari file yang benar
-import shapeRoutes from './routes/shapeRoutes'; // Pastikan ini diimpor dari file yang benar
+import aisRoutes from './routes/aisRoutes';
+import shapeRoutes from './routes/shapeRoutes';
+import connectDB from './config/database';
+import CombinedAisData from './models/combinedAisData';
+import Shape from './models/shapeZone';  // Pastikan Anda mengimpor model Shape
+import { delay } from './utils/delay';
 import aisDataRouter from './controllers/aisDataController';
-import connectDB from './config/database'; // Pastikan jalur ini benar
 
 // Inisialisasi Express
 const app = express();
 
-// Middleware untuk mengatasi CORS
-app.use(cors({
-  origin: 'http://103.24.48.92', // Ganti dengan domain atau IP frontend Anda
-  methods: ['GET', 'POST'],
-  credentials: true // Jika menggunakan kredensial seperti cookie, ubah ini menjadi true
-}));
-
-// Middleware untuk memparsing JSON dari body request
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 // Sajikan file statis dari direktori 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
-app.use('/api', aisRoutes); // Menyediakan endpoint khusus untuk data AIS
-app.use('/api', shapeRoutes); // Menyediakan endpoint khusus untuk shape
+app.use('/api', aisRoutes);
+app.use('/api', shapeRoutes);
 app.use('/api', aisDataRouter);
 
 // Connect to database
@@ -36,7 +33,7 @@ connectDB();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://103.24.48.92', // Ganti dengan domain atau IP frontend Anda
+    origin: '*',
     methods: ['GET', 'POST']
   }
 });
@@ -49,12 +46,34 @@ io.on('connection', (socket) => {
   });
 });
 
-// Default route for undefined routes
+// Set up MongoDB change streams for AIS data
+const aisChangeStream = CombinedAisData.watch();
+
+aisChangeStream.on('change', (change) => {
+  if (change.operationType === 'insert') {
+    const fullDocument = change.fullDocument;
+    io.emit('aisDataUpdate', fullDocument);
+  }
+});
+
+// Set up MongoDB change streams for Shapes data
+const shapeChangeStream = Shape.watch();
+
+shapeChangeStream.on('change', (change) => {
+  if (change.operationType === 'insert') {
+    const fullDocument = change.fullDocument;
+    io.emit('shapeDataUpdate', fullDocument);
+  }
+});
+
+delay(2000);
+
+// Default route untuk route yang tidak terdefinisi
 app.use((req, res) => {
-  res.status(404).send("Sorry, that route doesn't exist.");
+  res.status(404).send("Maaf, route tersebut tidak ada.");
 });
 
 
 
-export { io }; // Ekspor instance io untuk digunakan di tempat lain
+export { io };
 export default app;

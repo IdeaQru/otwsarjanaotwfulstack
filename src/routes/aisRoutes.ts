@@ -2,6 +2,7 @@ import { Router } from 'express';
 import net from 'net';
 import AisDecoder from 'ais-stream-decoder';
 import { processAisMessage } from '../controllers/aisMessageController';
+import { delay } from '../utils/delay';
 
 const router = Router();
 const HOST = '103.24.49.246';
@@ -31,6 +32,7 @@ parser.on('data', async (data) => {
   } catch (err) {
     console.error('Error parsing JSON:', err);
   }
+  delay(5000);
 });
 
 parser.on('error', (err) => {
