@@ -3,6 +3,7 @@ import net from 'net';
 import AisDecoder from 'ais-stream-decoder';
 import { processAisMessage } from '../controllers/aisMessageController';
 import { delay } from '../utils/delay';
+import CombinedAisData from '../models/combinedAisData';
 
 const router = Router();
 const HOST = '103.24.49.246';
@@ -73,7 +74,15 @@ router.get('/ais-data', (req, res) => {
     res.status(404).send('No AIS data available');
   }
 });
-
+router.get('/ships', async (req, res) => {
+  try {
+    const ships = await CombinedAisData.find({});
+    res.json(ships);
+  } catch (error) {
+    console.error('Error fetching ships data:', error);
+    res.status(500).send('Internal server error');
+  }
+});
 function isValidNmea(data: string): boolean {
   return data.startsWith('$') || data.startsWith('!');
 }

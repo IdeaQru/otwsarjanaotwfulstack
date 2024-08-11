@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 
 // Interface untuk properties dari shape
 interface IShapeProperties {
+  mmsi?: number;
   name?: string;
   status?: string;
   description?: string;
@@ -23,11 +24,12 @@ const shapeSchema = new mongoose.Schema<IShape>({
     required: true
   },
   properties: {
-    name: String,
-    status: String,
-    description: String,
-    color: String,
-    opacity: Number
+    mmsi: { type: Number },  // Properti harus memiliki tipe data yang spesifik
+    name: { type: String },
+    status: { type: String },
+    description: { type: String },
+    color: { type: String },
+    opacity: { type: Number }
   },
   coordinates: {
     type: mongoose.Schema.Types.Mixed,  // Gunakan Mixed untuk tipe data yang beragam
@@ -35,5 +37,6 @@ const shapeSchema = new mongoose.Schema<IShape>({
   }
 });
 
+// Membuat dan mengekspor model
 const Shape = mongoose.model<IShape>('Shape', shapeSchema);
 export default Shape;

@@ -7,33 +7,35 @@ import aisRoutes from './routes/aisRoutes';
 import shapeRoutes from './routes/shapeRoutes';
 import connectDB from './config/database';
 import CombinedAisData from './models/combinedAisData';
-import Shape from './models/shapeZone';  // Pastikan Anda mengimpor model Shape
+import Shape from './models/shapeZone';
 import { delay } from './utils/delay';
-import aisDataRouter from './controllers/aisDataController';
 
 // Inisialisasi Express
 const app = express();
 
-// Middleware
-app.use(cors());
+// Konfigurasi CORS
+const corsOptions = {
+  origin: 'http://localhost:4200', // Izinkan permintaan dari Angular dev server
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization','my-custom-header']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// Sajikan file statis dari direktori 'public'
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api', aisRoutes);
 app.use('/api', shapeRoutes);
-app.use('/api', aisDataRouter);
-
 // Connect to database
-connectDB();
+connectDB().catch(err => console.error('Failed to connect to DB', err));
 
 // Inisialisasi server HTTP dan socket.io
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: '*',
+    origin: 'http://localhost:4200', // Izinkan WebSocket dari Angular dev server
     methods: ['GET', 'POST']
   }
 });
@@ -46,31 +48,24 @@ io.on('connection', (socket) => {
   });
 });
 
-// Set up MongoDB change streams for AIS data
+// Set up MongoDB change streams
 const aisChangeStream = CombinedAisData.watch();
-
 aisChangeStream.on('change', (change) => {
-  if (change.operationType === 'insert') {
-    const fullDocument = change.fullDocument;
-    io.emit('aisDataUpdate', fullDocument);
+  if (['insert', 'update'].includes(change.operationType)) {
+    io.emit('aisDataUpdate', change.fullDocument);
   }
 });
 
-// Set up MongoDB change streams for Shapes data
 const shapeChangeStream = Shape.watch();
-
 shapeChangeStream.on('change', (change) => {
-  if (change.operationType === 'insert') {
-    const fullDocument = change.fullDocument;
-    io.emit('shapeDataUpdate', fullDocument);
+    if (['insert', 'update'].includes(change.operationType)) {
+    io.emit('shapeDataUpdate', change.fullDocument);
   }
 });
 
-delay(2000);
-
-// Default route untuk route yang tidak terdefinisi
-app.use((req, res) => {
-  res.status(404).send("Maaf, route tersebut tidak ada.");
+// Error Handling
+app.use((req, res, next) => {
+  res.status(404).send("Route not found");
 });
 
 
