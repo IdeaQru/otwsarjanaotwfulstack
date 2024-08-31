@@ -9,6 +9,7 @@ import connectDB from './config/database';
 import CombinedAisData from './models/combinedAisData';
 import Shape from './models/shapeZone';
 import { delay } from './utils/delay';
+import authRoutes from './routes/authRoutes';
 
 // Inisialisasi Express
 const app = express();
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/api', aisRoutes);
 app.use('/api', shapeRoutes);
+app.use('/api', authRoutes);
 // Connect to database
 connectDB().catch(err => console.error('Failed to connect to DB', err));
 
