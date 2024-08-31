@@ -9,3 +9,21 @@ Accept: application/json
   "role": "user"
 }
 
+
+### Get MMSI and Coordinates with Valid Token
+GET http://localhost:3000/api/shapes/mmsi-coordinates
+x-api-key:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoiMjAyNC0wOC0zMVQxMzowNTowMC44MjVaIiwiaWF0IjoxNzI1MTA5NTAwLCJleHAiOjE3MjUxOTU5MDB9.qCMEBuk4SfxvpBJa29T2FLb706sGHhf9q7g1Y1mnVhA
+
+###
+
+### Get MMSI and Coordinates with Invalid Token
+GET http://localhost:3000/api/shapes/mmsi-coordinates
+x-api-key: InvalidToken12345
+
+###
+
+### Get MMSI and Coordinates without Token
+GET http://localhost:3000/api/shapes/mmsi-coordinates
+
+###
+

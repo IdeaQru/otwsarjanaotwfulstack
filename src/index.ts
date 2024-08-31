@@ -10,7 +10,8 @@ import CombinedAisData from './models/combinedAisData';
 import Shape from './models/shapeZone';
 import { delay } from './utils/delay';
 import authRoutes from './routes/authRoutes';
-
+import { updateApiKey } from './middleware/apiMiddleware';
+import cron from 'node-cron';
 // Inisialisasi Express
 const app = express();
 
@@ -32,7 +33,13 @@ app.use('/api', shapeRoutes);
 app.use('/api', authRoutes);
 // Connect to database
 connectDB().catch(err => console.error('Failed to connect to DB', err));
+// Jalankan update API key pertama kali saat server start
+updateApiKey();
 
+// Jadwal pembaruan API key setiap 1 hari
+cron.schedule('0 0 * * *', () => {
+  updateApiKey();
+});
 // Inisialisasi server HTTP dan socket.io
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {

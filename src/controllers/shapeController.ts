@@ -49,3 +49,12 @@ export const deleteShape = async (req:Request, res:Response) => {
         res.status(500).send({ message: "Error deleting shape", error: error });
     }
 };
+
+export const getMmsiAndCoordinates = async (req: Request, res: Response) => {
+    try {
+      const shapes = await Shape.find({}, 'properties.mmsi coordinates');
+      res.json(shapes);
+    } catch (err) {
+      res.status(500).json({ message: 'Error retrieving data', error: err });
+    }
+  };
