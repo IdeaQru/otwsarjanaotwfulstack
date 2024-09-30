@@ -7,6 +7,9 @@ interface ICombinedAisData extends Document {
     name?: string;
     type?: number;
     destination?: string;
+    speedOverGround: number;
+    courseOverGround: number;
+    heading: number;
     timestamp: string;
 }
 
@@ -17,6 +20,9 @@ const CombinedAisDataSchema = new Schema<ICombinedAisData>({
     name: { type: String },
     type: { type: Number },
     destination: { type: String },
+    speedOverGround: { type: Number, required: true },
+    courseOverGround: { type: Number, required: true },
+    heading: { type: Number, required: true },
     timestamp: { type: String, required: true },
 });
 

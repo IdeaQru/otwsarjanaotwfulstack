@@ -6,8 +6,8 @@ interface IAisType1and3Data extends Document {
   timestamp: Date;
   latitude: number;
   longitude: number;
-  speed: number;
-  course: number;
+  speedOverGround: number;
+  courseOverGround: number;
   heading: number;
   navStatus: number;
   rateOfTurn: number;
@@ -19,8 +19,8 @@ const AisType1and3DataSchema = new Schema<IAisType1and3Data>({
   timestamp: { type: Date, required: true },
   latitude: { type: Number, required: true },
   longitude: { type: Number, required: true },
-  speed: { type: Number, required: true },
-  course: { type: Number, required: true },
+  speedOverGround: { type: Number, required: true },
+  courseOverGround: { type: Number, required: true },
   heading: { type: Number, required: true },
   navStatus: { type: Number, required: true },
   rateOfTurn: { type: Number, required: true },

@@ -19,6 +19,9 @@ export const getAndCombineAisData = async (mmsi: number) => {
       lat: dynamicData.latitude,
       name: staticData?.name || (staticData as any)?.shipName || undefined,
       type: staticData?.typeAndCargo || (staticData as any)?.shipType || (staticData as any)?.modelType,
+      speedOverGround: dynamicData.speedOverGround,
+      courseOverGround: dynamicData.courseOverGround,
+      heading: dynamicData.heading || 0,
       timestamp: moment(Date.now()).format('DD-MM-YYYY HH:mm:ss'),
       destination: staticData?.destination || undefined,
     };
