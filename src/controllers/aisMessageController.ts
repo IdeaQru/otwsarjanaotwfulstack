@@ -10,7 +10,7 @@ export const processAisMessage = async (data: any) => {
   try {
     console.log('Processing AIS Data:', data);
 
-    await delay(1000);
+    // await delay(1000);
 
     switch (data.type) {
       case 1:
@@ -32,6 +32,9 @@ export const processAisMessage = async (data: any) => {
         break;
       default:
         console.log(`Jenis data AIS tidak dikenali: ${data.type}`);
+
+  await delay(3000);
+
     }
 
     // Emit event to clients via socket.io

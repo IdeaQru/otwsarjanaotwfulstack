@@ -20,10 +20,10 @@ const CombinedAisDataSchema = new Schema<ICombinedAisData>({
     name: { type: String },
     type: { type: Number },
     destination: { type: String },
-    speedOverGround: { type: Number, required: true },
-    courseOverGround: { type: Number, required: true },
-    heading: { type: Number, required: true },
-    timestamp: { type: String, required: true },
+    speedOverGround: { type: Number},
+    courseOverGround: { type: Number, required: false},
+    heading: { type: Number,  },
+    timestamp: { type: String, },
 });
 
 const CombinedAisData = model<ICombinedAisData>('CombinedAisData', CombinedAisDataSchema);
