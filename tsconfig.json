@@ -4,6 +4,11 @@
     "outDir": "./dist",
     "module": "commonjs",
     "target": "es6",
+    "moduleResolution": "node",  // Tambahan penting untuk resolusi modul
+    "baseUrl": ".",  // Untuk memastikan semua path relatif dimulai dari root project
+    "paths": {
+      "*": ["src/*"]  // Untuk menyederhanakan pengaturan path modul
+    },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
