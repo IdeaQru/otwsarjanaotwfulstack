@@ -4,16 +4,24 @@
     "outDir": "./dist",
     "module": "commonjs",
     "target": "es6",
-    "moduleResolution": "node",  // Tambahan penting untuk resolusi modul
-    "baseUrl": ".",  // Untuk memastikan semua path relatif dimulai dari root project
+    "moduleResolution": "node", // Tambahan penting untuk resolusi modul
+    "baseUrl": "./src",
     "paths": {
-      "*": ["src/*"]  // Untuk menyederhanakan pengaturan path modul
+      "@models/*": [
+        "models/*"
+      ]
     },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "index.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts",
+    "index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
