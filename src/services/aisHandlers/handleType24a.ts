@@ -1,4 +1,4 @@
-import AisType24AData from '../../models/aisType24AData';
+import AisType24AData from '../../models/aisType24Adata';
 import { getAndCombineAisData } from '../../services/aisHandlers/getCombinedAISData';
 
 export const handleType24a = async (data: any) => {
@@ -8,6 +8,8 @@ export const handleType24a = async (data: any) => {
     partNum: data.partNum,
     name: data.name,
     timestamp: new Date(),
+    sentence: data.sentences,
+
   });
 
   await aisType24AData.save();

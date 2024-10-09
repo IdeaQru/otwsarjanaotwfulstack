@@ -1,4 +1,4 @@
-import AisType5Data from '../../models/aisType5Data';
+import AisType5Data from '../../models/aisType5data';
 import { getAndCombineAisData } from '../../services/aisHandlers/getCombinedAISData';
 
 export const handleType5 = async (data: any) => {
@@ -23,6 +23,7 @@ export const handleType5 = async (data: any) => {
     destination: data.destination,
     dte: data.dte,
     timestamp: new Date(),
+    sentence: data.sentences,
   });
 
   await aisType5Data.save();

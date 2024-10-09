@@ -1,4 +1,4 @@
-import AisType18Data from '../../models/aisType18Data';
+import AisType18Data from '../../models/aisType18data';
 import { getAndCombineAisData } from '../../services/aisHandlers/getCombinedAISData';
 
 export const handleType18 = async (data: any) => {
@@ -8,8 +8,8 @@ export const handleType18 = async (data: any) => {
     timestamp: new Date(),
     speedOverGround: data.speedOverGround,
     accuracy: data.accuracy,
-    lon: data.lon,
-    lat: data.lat,
+    longitude: data.lon,
+    latitude: data.lat,
     courseOverGround: data.courseOverGround,
     heading: data.heading,
     utcSecond: data.utcSecond,
@@ -22,10 +22,13 @@ export const handleType18 = async (data: any) => {
     modeFlag: data.modeFlag,
     raim: data.raim,
     radio: data.radio,
+    sentence: data.sentences,
+
   });
 
   await aisType18Data.save();
-  console.log('AIS Type 18 Data berhasil disimpan ke database');
+
+
     // Perbarui data gabungan
     await getAndCombineAisData(data.mmsi);
 };

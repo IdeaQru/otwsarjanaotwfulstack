@@ -1,4 +1,4 @@
-import AisType24BData from '../../models/aisType24BData';
+import AisType24BData from '../../models/aisType24Bdata';
 import { getAndCombineAisData } from '../../services/aisHandlers/getCombinedAISData';
 
 export const handleType24b = async (data: any) => {
@@ -16,6 +16,8 @@ export const handleType24b = async (data: any) => {
     dimPort: data.dimPort,
     dimStarboard: data.dimStarboard,
     timestamp: new Date(),
+    sentence: data.sentences,
+
   });
 
   await aisType24BData.save();
