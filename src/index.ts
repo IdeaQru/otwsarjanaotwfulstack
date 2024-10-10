@@ -55,33 +55,9 @@ const io = new SocketIOServer(server, {
   }
 });
 
-// Event handler untuk koneksi socket.io
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
 
-const aisChangeStream: ChangeStream = CombinedAisData.watch();
-aisChangeStream.on('change', (change: ChangeStreamDocument<any>) => {
-  // Pastikan operasi memiliki fullDocument sebelum mengaksesnya
-  if (change.operationType === 'insert' || change.operationType === 'update') {
-    io.emit('aisDataUpdate', change.fullDocument);
-  } else {
-    console.log(`Change detected with operationType: ${change.operationType}`);
-  }
-});
 
-const shapeChangeStream: ChangeStream = Shape.watch();
-shapeChangeStream.on('change', (change: ChangeStreamDocument<any>) => {
-  // Pastikan operasi memiliki fullDocument sebelum mengaksesnya
-  if (change.operationType === 'insert' || change.operationType === 'update') {
-    io.emit('shapeDataUpdate', change.fullDocument);
-  } else {
-    console.log(`Change detected with operationType: ${change.operationType}`);
-  }
-});
+
 
 
 // Error Handling middleware
