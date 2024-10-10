@@ -28,7 +28,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const AisLogSchema = new mongoose_1.Schema({
     mmsi: { type: Number, required: true },
     name: { type: String, required: false },
-    logTime: { type: String, required: true }, // Format waktu log
+    logTime: { type: String, required: true },
     details: { type: mongoose_1.Schema.Types.Mixed, required: true } // Menyimpan detail data gabungan
 });
 // Buat model berdasarkan skema

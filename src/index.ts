@@ -1,5 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { ChangeStream, ChangeStreamDocument } from 'mongodb';
+import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import http from 'http';
@@ -61,7 +60,7 @@ const io = new SocketIOServer(server, {
 
 
 // Error Handling middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req, res, next) => {
   res.status(404).send('Route not found');
 });
 

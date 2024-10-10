@@ -19,7 +19,7 @@
   "include": [
     "src/**/*.ts",
     "index.ts"
-, "server.ts"  ],
+, "src/server.ts"  ],
   "exclude": [
     "node_modules",
     "dist"
