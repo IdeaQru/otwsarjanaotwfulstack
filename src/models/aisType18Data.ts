@@ -6,8 +6,8 @@ interface IAisType18Data extends Document {
   timestamp: Date;
   speedOverGround: number;
   accuracy: boolean;
-  lon: number;
-  lat: number;
+  longitude: number;
+  latitude: number;
   courseOverGround: number;
   heading: number | null;
   utcSecond: number;
@@ -28,8 +28,8 @@ const AisType18DataSchema = new Schema<IAisType18Data>({
   timestamp: { type: Date, required: true },
   speedOverGround: { type: Number, required: true },
   accuracy: { type: Boolean, required: true },
-  lon: { type: Number, required: true },
-  lat: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  latitude: { type: Number, required: true },
   courseOverGround: { type: Number, required: true },
   heading: { type: Number, required: false },
   utcSecond: { type: Number, required: true },
@@ -45,4 +45,6 @@ const AisType18DataSchema = new Schema<IAisType18Data>({
 });
 
 const AisType18Data = model<IAisType18Data>('AisType18Data', AisType18DataSchema);
+
+
 export default AisType18Data;
