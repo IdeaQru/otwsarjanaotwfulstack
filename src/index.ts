@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import cors from 'cors';
 import http from 'http';
@@ -12,6 +12,7 @@ import { delay } from './utils/delay';
 import authRoutes from './routes/authRoutes';
 import { updateApiKey } from './middleware/apiMiddleware';
 import cron from 'node-cron';
+
 // Inisialisasi Express
 const app = express();
 
@@ -19,8 +20,9 @@ const app = express();
 const corsOptions = {
   origin: 'http://localhost:4200', // Izinkan permintaan dari Angular dev server
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization','my-custom-header']
+  allowedHeaders: ['Content-Type', 'Authorization', 'my-custom-header']
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -31,8 +33,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', aisRoutes);
 app.use('/api', shapeRoutes);
 app.use('/api', authRoutes);
+
 // Connect to database
-connectDB().catch(err => console.error('Failed to connect to DB', err));
+connectDB().catch((err) => console.error('Failed to connect to DB', err));
+
 // Jalankan update API key pertama kali saat server start
 updateApiKey();
 
@@ -40,6 +44,7 @@ updateApiKey();
 cron.schedule('0 0 * * *', () => {
   updateApiKey();
 });
+
 // Inisialisasi server HTTP dan socket.io
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
@@ -57,27 +62,25 @@ io.on('connection', (socket) => {
   });
 });
 
-// Set up MongoDB change streams
+// Set up MongoDB change streams with proper typing
 const aisChangeStream = CombinedAisData.watch();
-aisChangeStream.on('change', (change) => {
+aisChangeStream.on('change', (change: any) => { // Type the 'change' parameter explicitly
   if (['insert', 'update'].includes(change.operationType)) {
     io.emit('aisDataUpdate', change.fullDocument);
   }
 });
 
 const shapeChangeStream = Shape.watch();
-shapeChangeStream.on('change', (change) => {
-    if (['insert', 'update'].includes(change.operationType)) {
+shapeChangeStream.on('change', (change: any) => { // Type the 'change' parameter explicitly
+  if (['insert', 'update'].includes(change.operationType)) {
     io.emit('shapeDataUpdate', change.fullDocument);
   }
 });
 
-// Error Handling
-app.use((req, res, next) => {
-  res.status(404).send("Route not found");
+// Error Handling middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.status(404).send('Route not found');
 });
-
-
 
 export { io };
 export default app;
