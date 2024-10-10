@@ -28,7 +28,7 @@ const saveAisLog = (mmsi, name, combinedData) => __awaiter(void 0, void 0, void 
         // Tambahkan data details baru jika MMSI sudah ada, atau buat entri baru jika tidak ada
         yield aisLog_1.default.findOneAndUpdate({ mmsi }, // Cari berdasarkan MMSI
         {
-            $set: { name, logTime },
+            $set: { name, logTime }, // Perbarui atau set nama dan logTime
             $push: { details: combinedData }, // Tambahkan data baru ke dalam array details
         }, { upsert: true, new: true } // Buat entri baru jika tidak ada MMSI yang cocok (upsert)
         );

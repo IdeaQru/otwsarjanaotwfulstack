@@ -55,7 +55,28 @@ const io = new SocketIOServer(server, {
 });
 
 
+// Event handler untuk koneksi socket.io
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 
+// Set up MongoDB change streams with proper typing
+const aisChangeStream = CombinedAisData.watch();
+aisChangeStream.on('change', (change: any) => { // Type the 'change' parameter explicitly
+  if (['insert', 'update'].includes(change.operationType)) {
+    io.emit('aisDataUpdate', change.fullDocument);
+  }
+});
+
+const shapeChangeStream = Shape.watch();
+shapeChangeStream.on('change', (change: any) => { // Type the 'change' parameter explicitly
+  if (['insert', 'update'].includes(change.operationType)) {
+    io.emit('shapeDataUpdate', change.fullDocument);
+  }
+});
 
 
 

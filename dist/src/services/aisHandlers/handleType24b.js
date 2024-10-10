@@ -22,7 +22,7 @@ const handleType24b = (data) => __awaiter(void 0, void 0, void 0, function* () {
         partNum: data.partNum,
         typeAndCargo: data.typeAndCargo,
         vendorId: data.vendorId || '',
-        modelType: data.model,
+        modelType: data.model, // Use renamed property
         serial: data.serial,
         callsign: data.callsign,
         dimBow: data.dimBow,

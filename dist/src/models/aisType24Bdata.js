@@ -7,7 +7,7 @@ const AisType24BDataSchema = new mongoose_1.Schema({
     partNum: { type: Number, required: true },
     typeAndCargo: { type: Number, required: true },
     vendorId: { type: String, required: true },
-    modelType: { type: Number, required: true },
+    modelType: { type: Number, required: true }, // Rename to avoid conflict
     serial: { type: Number, required: true },
     callsign: { type: String, required: true },
     dimBow: { type: Number, required: true },

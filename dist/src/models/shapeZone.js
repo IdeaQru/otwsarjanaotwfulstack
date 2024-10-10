@@ -31,7 +31,7 @@ const shapeSchema = new mongoose.Schema({
         required: true
     },
     properties: {
-        mmsi: { type: Number },
+        mmsi: { type: Number }, // Properti harus memiliki tipe data yang spesifik
         name: { type: String },
         status: { type: String },
         description: { type: String },
@@ -39,7 +39,7 @@ const shapeSchema = new mongoose.Schema({
         opacity: { type: Number }
     },
     coordinates: {
-        type: mongoose.Schema.Types.Mixed,
+        type: mongoose.Schema.Types.Mixed, // Gunakan Mixed untuk tipe data yang beragam
         required: true
     }
 });

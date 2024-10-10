@@ -12,6 +12,8 @@ const socket_io_1 = require("socket.io");
 const aisRoutes_1 = __importDefault(require("./routes/aisRoutes"));
 const shapeRoutes_1 = __importDefault(require("./routes/shapeRoutes"));
 const database_1 = __importDefault(require("./config/database"));
+const combinedAisData_1 = __importDefault(require("./models/combinedAisData"));
+const shapeZone_1 = __importDefault(require("./models/shapeZone"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const apiMiddleware_1 = require("./middleware/apiMiddleware");
 const node_cron_1 = __importDefault(require("node-cron"));
@@ -48,6 +50,26 @@ const io = new socket_io_1.Server(server, {
     }
 });
 exports.io = io;
+// Event handler untuk koneksi socket.io
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
+// Set up MongoDB change streams with proper typing
+const aisChangeStream = combinedAisData_1.default.watch();
+aisChangeStream.on('change', (change) => {
+    if (['insert', 'update'].includes(change.operationType)) {
+        io.emit('aisDataUpdate', change.fullDocument);
+    }
+});
+const shapeChangeStream = shapeZone_1.default.watch();
+shapeChangeStream.on('change', (change) => {
+    if (['insert', 'update'].includes(change.operationType)) {
+        io.emit('shapeDataUpdate', change.fullDocument);
+    }
+});
 // Error Handling middleware
 app.use((req, res, next) => {
     res.status(404).send('Route not found');
