@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import path from 'path';
 import cors from 'cors';
 import http from 'http';
@@ -18,7 +19,7 @@ const app = express();
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: 'http://localhost:4200', // Izinkan permintaan dari Angular dev server
+  origin: 'http://localhost:4200',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'my-custom-header']
 };
@@ -49,7 +50,7 @@ cron.schedule('0 0 * * *', () => {
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://localhost:4200', // Izinkan WebSocket dari Angular dev server
+    origin: 'http://localhost:4200',
     methods: ['GET', 'POST']
   }
 });
@@ -62,20 +63,26 @@ io.on('connection', (socket) => {
   });
 });
 
-// Set up MongoDB change streams with proper typing
-const aisChangeStream = CombinedAisData.watch();
-aisChangeStream.on('change', (change: any) => { // Type the 'change' parameter explicitly
-  if (['insert', 'update'].includes(change.operationType)) {
+const aisChangeStream: ChangeStream = CombinedAisData.watch();
+aisChangeStream.on('change', (change: ChangeStreamDocument<any>) => {
+  // Pastikan operasi memiliki fullDocument sebelum mengaksesnya
+  if (change.operationType === 'insert' || change.operationType === 'update') {
     io.emit('aisDataUpdate', change.fullDocument);
+  } else {
+    console.log(`Change detected with operationType: ${change.operationType}`);
   }
 });
 
-const shapeChangeStream = Shape.watch();
-shapeChangeStream.on('change', (change: any) => { // Type the 'change' parameter explicitly
-  if (['insert', 'update'].includes(change.operationType)) {
+const shapeChangeStream: ChangeStream = Shape.watch();
+shapeChangeStream.on('change', (change: ChangeStreamDocument<any>) => {
+  // Pastikan operasi memiliki fullDocument sebelum mengaksesnya
+  if (change.operationType === 'insert' || change.operationType === 'update') {
     io.emit('shapeDataUpdate', change.fullDocument);
+  } else {
+    console.log(`Change detected with operationType: ${change.operationType}`);
   }
 });
+
 
 // Error Handling middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
