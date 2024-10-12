@@ -18,13 +18,14 @@ const app = express();
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: ['http://localhost:4200', 'http://165.154.208.232:4200'],  // Izinkan localhost dan server IP
+  origin: ['http://165.154.228.42:4200'],  // Masukkan IP frontend kamu
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true  // Izinkan cookie/jwt dikirimkan
+  credentials: true  // Jika menggunakan cookie atau token
 };
 
-app.use(cors(corsOptions));
+
+
 
 
 app.use(cors(corsOptions));
