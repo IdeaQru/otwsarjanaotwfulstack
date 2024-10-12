@@ -18,10 +18,14 @@ const app = express();
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: ['http://localhost:4200', 'http://165.154.208.232'],  // Izinkan localhost dan server IP
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'my-custom-header']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true  // Izinkan cookie/jwt dikirimkan
 };
+
+app.use(cors(corsOptions));
+
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -49,10 +53,12 @@ cron.schedule('0 0 * * *', () => {
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://localhost:4200',
-    methods: ['GET', 'POST']
+    origin: ['http://localhost:4200', 'http://165.154.208.232'],  // Domain yang diizinkan
+    methods: ['GET', 'POST'],
+    credentials: true  // Jika ada cookie atau token yang digunakan
   }
 });
+
 
 
 // Event handler untuk koneksi socket.io
