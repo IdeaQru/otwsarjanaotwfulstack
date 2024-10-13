@@ -18,7 +18,7 @@ const app = express();
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: ['http://165.154.228.42:4200'],  // Masukkan IP frontend kamu
+  origin: '*',  // Masukkan IP frontend kamu
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true  // Jika menggunakan cookie atau token

@@ -2,6 +2,7 @@ import AisType18Data from '../../models/aisType18data';
 import { getAndCombineAisData } from '../../services/aisHandlers/getCombinedAISData';
 
 export const handleType18 = async (data: any) => {
+  try {
   const aisType18Data = new AisType18Data({
     type: data.type,
     mmsi: data.mmsi,
@@ -29,6 +30,10 @@ export const handleType18 = async (data: any) => {
   await aisType18Data.save();
 
 
+  console.log('AIS Type 18 Data berhasil disimpan ke database');
     // Perbarui data gabungan
     await getAndCombineAisData(data.mmsi);
+  }catch (error) {
+    console.log(error);
+  }
 };
