@@ -13,7 +13,7 @@ export const handleType24a = async (data: any) => {
   });
 
   await aisType24AData.save();
-  console.log('AIS Type 24 Part A Data berhasil disimpan ke database');
+  // console.log('AIS Type 24 Part A Data berhasil disimpan ke database');
     // Perbarui data gabungan
     await getAndCombineAisData(data.mmsi);
 };

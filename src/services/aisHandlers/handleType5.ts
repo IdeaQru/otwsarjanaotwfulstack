@@ -28,10 +28,10 @@ export const handleType5 = async (data: any) => {
   });
 
   await aisType5Data.save();
-  console.log('AIS Type 5 Data berhasil disimpan ke database');
+  // console.log('AIS Type 5 Data berhasil disimpan ke database');
 
     // Perbarui data gabungan
-    await getAndCombineAisData(data.mmsi);
+   getAndCombineAisData(data.mmsi);
 } catch (error) {
   console.error(error);
 }

@@ -27,63 +27,78 @@ import { saveAisLog } from './aisLogData';
 import moment from 'moment';
 
 export const getAndCombineAisData = async (mmsi: number) => {
-  // Query dynamic data from Types 1, 2, 3, 9, 18, 19, 21, and 27 (position-related data)
-  const dynamicData =
-    (await AisType1and3Data.findOne({ mmsi })) ||
-    (await AisType9Data.findOne({ mmsi })) ||
-    (await AisType18Data.findOne({ mmsi })) ||
-    (await AisType19Data.findOne({ mmsi })) ||
-    (await AisType21Data.findOne({ mmsi })) ||
-    (await AisType27Data.findOne({ mmsi }));
+  const dynamicDataEntries = [
+    (await AisType1and3Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType9Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType18Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType19Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType21Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType27Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+  ].filter((entry) => entry && (entry as any).timestamp);
 
-  // Query static data from Types 5, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 20, 22, 23, 24, 25, and 26 (vessel-related data)
-  const staticData =
-    (await AisType5Data.findOne({ mmsi })) ||
-    (await AisType7Data.findOne({ mmsi })) ||
-    (await AisType8Data.findOne({ mmsi })) ||
-    (await AisType10Data.findOne({ mmsi })) ||
-    (await AisType11Data.findOne({ mmsi })) ||
-    (await AisType12Data.findOne({ mmsi })) ||
-    (await AisType13Data.findOne({ mmsi })) ||
-    (await AisType14Data.findOne({ mmsi })) ||
-    (await AisType15Data.findOne({ mmsi })) ||
-    (await AisType16Data.findOne({ mmsi })) ||
-    (await AisType17Data.findOne({ mmsi })) ||
-    (await AisType20Data.findOne({ mmsi })) ||
-    (await AisType22Data.findOne({ mmsi })) ||
-    (await AisType23Data.findOne({ mmsi })) ||
-    (await AisType24AData.findOne({ mmsi })) ||
-    (await AisType24BData.findOne({ mmsi })) ||
-    (await AisType25Data.findOne({ mmsi })) ||
-    (await AisType26Data.findOne({ mmsi }));
+  const latestDynamicData = dynamicDataEntries.sort((a, b) =>
+    moment((b as any).timestamp).diff(moment((a as any).timestamp))
+  )[0];
 
-  // Ensure dynamic data has necessary coordinates before combining
-  if (dynamicData && dynamicData.longitude && dynamicData.latitude) {
+  const staticDataEntries = [
+    (await AisType5Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType7Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType8Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType10Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType11Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType12Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType13Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType14Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType15Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType16Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType17Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType20Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType22Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType23Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType24AData.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType24BData.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType25Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+    (await AisType26Data.find({ mmsi }).sort({ timestamp: -1 }).limit(1))[0],
+  ].filter((entry) => entry && (entry as any).timestamp);
+
+  const latestStaticData = staticDataEntries.sort((a, b) =>
+    moment((b as any).timestamp).diff(moment((a as any).timestamp))
+  )[0];
+
+  if (latestDynamicData && (latestDynamicData as any).longitude && (latestDynamicData as any).latitude) {
+    const formattedTimestamp = moment.utc((latestDynamicData as any).timestamp).format('DD-MM-YYYY HH:mm:ss');
+
     const combinedData = {
-      mmsi: dynamicData.mmsi,
-      lon: dynamicData.longitude,
-      lat: dynamicData.latitude,
-      name: staticData?.name || (staticData as any)?.shipName || undefined,
+      mmsi: (latestDynamicData as any).mmsi,
+      lon: (latestDynamicData as any).longitude,
+      lat: (latestDynamicData as any).latitude,
+      name: (latestStaticData as any)?.name || (latestStaticData as any)?.shipName || undefined,
       type:
-        staticData?.typeAndCargo ||
-        (staticData as any)?.shipType ||
-        (staticData as any)?.modelType ||
-        (staticData as any)?.vesselType || undefined,
-      speedOverGround: dynamicData.speedOverGround || undefined,
-      courseOverGround: dynamicData.courseOverGround || undefined,
-      heading: dynamicData.heading || 0,
-      timestamp: moment(Date.now()).format('DD-MM-YYYY HH:mm:ss'),
-      destination: staticData?.destination || undefined,
+        (latestStaticData as any)?.typeAndCargo ||
+        (latestStaticData as any)?.shipType ||
+        (latestStaticData as any)?.modelType ||
+        (latestStaticData as any)?.vesselType || undefined,
+      speedOverGround: (latestDynamicData as any).speedOverGround || undefined,
+      courseOverGround: (latestDynamicData as any).courseOverGround || undefined,
+      heading: (latestDynamicData as any).heading || 0,
+      timestamp: formattedTimestamp,
+      destination: (latestStaticData as any)?.destination || undefined,
     };
 
-    // Upsert combined data into the database
-    await CombinedAisData.updateOne({ mmsi: combinedData.mmsi }, combinedData, { upsert: true });
-    await saveAisLog(combinedData.mmsi, combinedData.name, combinedData);
+    const existingData = await CombinedAisData.findOne({ mmsi: combinedData.mmsi });
+    const existingTimestamp = existingData && (existingData as any).timestamp
+      ? moment((existingData as any).timestamp, 'DD-MM-YYYY HH:mm:ss')
+      : null;
 
-    console.log('Combined AIS Data and log successfully saved or updated in the database');
+    const newTimestamp = moment(combinedData.timestamp, 'DD-MM-YYYY HH:mm:ss');
+
+    if (!existingTimestamp || newTimestamp.isAfter(existingTimestamp)) {
+      await CombinedAisData.updateOne({ mmsi: combinedData.mmsi }, combinedData, { upsert: true });
+      console.log(`Updated AIS data for MMSI: ${combinedData.mmsi} with timestamp: ${combinedData.timestamp}`);
+    } else {
+      console.log(`Ignored outdated AIS data for MMSI: ${combinedData.mmsi} with timestamp: ${combinedData.timestamp}`);
+    }
   } else {
-    console.log('Dynamic data is incomplete (missing longitude or latitude) for mmsi:', mmsi);
+    console.log(`Dynamic data is incomplete (missing longitude or latitude) for mmsi: ${mmsi}`);
   }
 };
-
-

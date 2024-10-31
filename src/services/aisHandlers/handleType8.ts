@@ -11,7 +11,7 @@ export const handleType8 = async (data: any) => {
   });
 
   await aisType8Data.save();
-  console.log('AIS Type 8 Data berhasil disimpan ke database');
+  // console.log('AIS Type 8 Data berhasil disimpan ke database');
   // Update combined AIS data
   await getAndCombineAisData(data.mmsi);
 }catch (error) {

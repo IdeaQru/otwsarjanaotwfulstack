@@ -6,10 +6,10 @@ import { parseNmeaSentence } from 'nmea-simple'; // Library untuk mendecode data
 import { delay } from '../utils/delay';
 import CombinedAisData from '../models/combinedAisData';
 import AisLog from '../models/aisLog'; // Import model AisLog
-
+import RawAisData, { IRawAisData } from '../models/rawAisData';
 import { gpsAisData } from '../models/gpsAisdata';
 const router = Router();
-const HOST = '103.24.49.246';
+const HOST = '103.24.49.238';
 const AIS_PORT = 34567;
 
 const parser = new AisDecoder();
@@ -23,16 +23,16 @@ client.connect(AIS_PORT, HOST, () => {
 
 // Proses data AIS
 parser.on('data', async (data) => {
-  console.log('Decoded AIS Data:', data); // Log the received data
+  // console.log('Decoded AIS Data:', data); // Log the received data
 
   try {
     const dataFix = JSON.parse(data); // Safely parse the JSON string
     if ('type' in dataFix) {
-      console.log('Data type exists:', dataFix.type);
+      // console.log('Data type exists:', dataFix.type);
       latestDecodedData = dataFix;
       await processAisMessage(dataFix); // Simpan data AIS ke MongoDB
     } else {
-      console.error('Data received does not have a type property:', dataFix);
+      // console.error('Data received does not have a type property:', dataFix);
     }
   } catch (err) {
     console.error('Error parsing JSON:', err);
@@ -46,12 +46,10 @@ parser.on('error', (err) => {
 
 // Proses data dari server
 client.on('data', (data) => {
-  console.log('Raw data received from server:', data.toString());
   buffer += data.toString();
   let lines = buffer.split('\n');
   buffer = lines.pop()!; // Keep the last incomplete line in the buffer
   lines.forEach((line) => {
-    console.log('Processing line:', line);
     if (isValidNmea(line.trim())) {
       try {
         // Proses data GPS (NMEA) dan AIS
@@ -79,10 +77,9 @@ const processNmeaOrAis = (line: string) => {
     // Mendecode data GPS (NMEA)
     try {
       const decodedNmea = parseNmeaSentence(line);
-      console.log('Decoded NMEA GPS Data:', decodedNmea);
       saveGpsData(decodedNmea); // Simpan data GPS ke MongoDB
     } catch (err) {
-      console.error('Error decoding NMEA GPS data:', err);
+      return;
     }
   } else {
     // Jika tidak mulai dengan $, anggap data AIS dan masukkan ke parser AIS
@@ -100,13 +97,11 @@ const saveGpsData = async (nmeaData: any) => {
         const gpsData = new gpsAisData({
           lat: latitude,
           lon: longitude,
-          timestamp: new Date(time),
+          timestamp: time,
           type: 'GPS'
         });
         await gpsData.save();
         console.log('Saved GPS data to MongoDB:', gpsData);
-      } else {
-        console.log('Invalid GPS data, not saving to MongoDB.');
       }
     }
     // Tambahkan penanganan tipe kalimat NMEA lain di sini jika diperlukan

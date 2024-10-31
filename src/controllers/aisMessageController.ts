@@ -29,7 +29,7 @@ import { io } from '../index'; // Import instance io
 
 export const processAisMessage = async (data: any) => {
   try {
-    console.log('Processing AIS Data:', data);
+    // console.log('Processing AIS Data:', data);
 
     switch (data.type) {
       case 1:
