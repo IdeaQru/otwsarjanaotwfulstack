@@ -97,6 +97,8 @@ export const getAndCombineAisData = async (mmsi: number) => {
   
     if (!existingTimestamp || newTimestamp.isAfter(existingTimestamp)) {
       await CombinedAisData.updateOne({ mmsi: combinedData.mmsi }, combinedData, { upsert: true });
+      await saveAisLog(combinedData.mmsi, combinedData.name, combinedData);
+
       console.log(`Updated AIS data for MMSI: ${combinedData.mmsi} with timestamp: ${combinedData.timestamp}`);
     } else {
       console.log(`Ignored outdated AIS data for MMSI: ${combinedData.mmsi} with timestamp: ${combinedData.timestamp}`);
