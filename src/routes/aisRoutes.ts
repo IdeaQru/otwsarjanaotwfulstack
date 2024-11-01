@@ -17,6 +17,22 @@ const parser = new AisDecoder();
 let latestDecodedData: any = null;
 let buffer = '';
 let dataQueue: string[] = [];
+let cache = new Map();
+const MAX_QUEUE_SIZE = 1000;
+
+// Bersihkan cache secara berkala setiap 60 detik
+setInterval(() => {
+  cache.clear();
+  console.log("Cache cleared to free memory.");
+}, 300000); // Setiap 60 detik
+
+// Potong dataQueue setiap 60 detik jika melebihi ukuran maksimum
+setInterval(() => {
+  if (dataQueue.length > MAX_QUEUE_SIZE) {
+    dataQueue = dataQueue.slice(-MAX_QUEUE_SIZE ); // Simpan hanya setengah dari queue
+    console.log("Data queue trimmed to reduce memory usage.");
+  }
+}, 300000); // Setiap 60 detik
 
 // Koneksi ke server AIS
 const client = new net.Socket();
@@ -28,12 +44,14 @@ client.connect(AIS_PORT, HOST, () => {
 const processQueue = async () => {
   while (true) {
     if (dataQueue.length > 0) {
-      const line = dataQueue.shift(); // Ambil data pertama di queue
-      if (line) processNmeaOrAis(line);
+      console.log(`Processing queue. Items remaining: ${dataQueue.length}`);
+      const line = dataQueue.shift();
+      if (line) await processNmeaOrAis(line);
     }
-    await delay(10); // Delay pendek untuk memberi waktu proses data berikutnya
+    await delay(1); // Atur delay jika diperlukan
   }
 };
+
 
 parser.on('data', async (data) => {
   try {
@@ -41,7 +59,6 @@ parser.on('data', async (data) => {
     if ('type' in dataFix) {
       latestDecodedData = dataFix;
       await processAisMessage(dataFix); // Simpan data AIS ke MongoDB
-      // console.log("Sentence decoded successfully");
     }
   } catch (err) {
     console.log("Sentence error: failed to decode");
@@ -61,7 +78,11 @@ client.on('data', (data) => {
 
   lines.forEach((line) => {
     if (isValidNmea(line.trim())) {
-      dataQueue.push(line.trim()); // Tambahkan ke queue
+      if (dataQueue.length < MAX_QUEUE_SIZE) {
+        dataQueue.push(line.trim()); // Tambahkan ke queue
+      } else {
+        console.warn("Queue full, skipping data");
+      }
     }
   });
 });
@@ -75,26 +96,33 @@ client.on('close', () => {
 client.on('error', (err) => {
   console.error(`Socket Error: ${err.message}`);
 });
-
 const processNmeaOrAis = async (line: string) => {
+  const cacheKey = line;
+  const now = Date.now();
+
+  // Periksa apakah data sudah ada dalam cache untuk menghindari duplikat
+  if (cache.has(cacheKey) && now - cache.get(cacheKey) < 30000) {
+    return; // Abaikan data jika duplikat dalam waktu 30 detik
+  }
+
+  // Simpan data dalam cache dengan waktu saat ini
+  cache.set(cacheKey, now);
+
   if (line.startsWith('$')) {
     try {
       const decodedNmea = parseNmeaSentence(line);
-      saveGpsData(decodedNmea);
+      await saveGpsData(decodedNmea);
     } catch (err) {
       console.log(line, "Sentence error: failed to decode");
-      await new Promise(resolve => setTimeout(resolve, 10));  // Tambahkan delay 10ms
     }
   } else {
     try {
       parser.write(line);
     } catch (err) {
       console.log("Sentence error: failed to decode");
-      await new Promise(resolve => setTimeout(resolve, 10));  // Tambahkan delay 10ms
     }
   }
 };
-
 
 
 // Fungsi untuk menyimpan data GPS ke MongoDB
@@ -148,7 +176,7 @@ router.get('/ships', async (req, res) => {
 
 // Fungsi untuk memvalidasi apakah baris data valid sebagai NMEA
 function isValidNmea(data: string): boolean {
-  return data.startsWith('$') || data.startsWith('!');
+  return (data.startsWith('$') || data.startsWith('!')) && data.includes('*') && data.length > 20;
 }
 
 // Mulai pemrosesan queue secara terus menerus
