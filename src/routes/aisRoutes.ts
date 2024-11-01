@@ -2,12 +2,13 @@ import { Router } from 'express';
 import net from 'net';
 import AisDecoder from 'ais-stream-decoder';
 import { processAisMessage } from '../controllers/aisMessageController';
-import { parseNmeaSentence } from 'nmea-simple'; // Library untuk mendecode data GPS
+import { parseNmeaSentence } from 'nmea-simple';
 import { delay } from '../utils/delay';
 import CombinedAisData from '../models/combinedAisData';
-import AisLog from '../models/aisLog'; // Import model AisLog
-import RawAisData, { IRawAisData } from '../models/rawAisData';
+import AisLog from '../models/aisLog';
+import RawAisData from '../models/rawAisData';
 import { gpsAisData } from '../models/gpsAisdata';
+
 const router = Router();
 const HOST = '103.24.49.238';
 const AIS_PORT = 34567;
@@ -15,100 +16,105 @@ const AIS_PORT = 34567;
 const parser = new AisDecoder();
 let latestDecodedData: any = null;
 let buffer = '';
+let dataQueue: string[] = [];
 
+// Koneksi ke server AIS
 const client = new net.Socket();
 client.connect(AIS_PORT, HOST, () => {
   console.log(`Connected to ${HOST}:${AIS_PORT}`);
 });
 
-// Proses data AIS
-parser.on('data', async (data) => {
-  // console.log('Decoded AIS Data:', data); // Log the received data
+// Fungsi untuk memproses queue data
+const processQueue = async () => {
+  while (true) {
+    if (dataQueue.length > 0) {
+      const line = dataQueue.shift(); // Ambil data pertama di queue
+      if (line) processNmeaOrAis(line);
+    }
+    await delay(10); // Delay pendek untuk memberi waktu proses data berikutnya
+  }
+};
 
+parser.on('data', async (data) => {
   try {
-    const dataFix = JSON.parse(data); // Safely parse the JSON string
+    const dataFix = JSON.parse(data);
     if ('type' in dataFix) {
-      // console.log('Data type exists:', dataFix.type);
       latestDecodedData = dataFix;
       await processAisMessage(dataFix); // Simpan data AIS ke MongoDB
-    } else {
-      // console.error('Data received does not have a type property:', dataFix);
+      // console.log("Sentence decoded successfully");
     }
   } catch (err) {
-    console.error('Error parsing JSON:', err);
+    console.log("Sentence error: failed to decode");
   }
-  delay(5000);
 });
 
+// Tangani error dari parser
 parser.on('error', (err) => {
   console.error('AIS Decoder Error:', err);
 });
 
-// Proses data dari server
+// Proses data dari server dan masukkan ke queue
 client.on('data', (data) => {
   buffer += data.toString();
-  let lines = buffer.split('\n');
-  buffer = lines.pop()!; // Keep the last incomplete line in the buffer
+  const lines = buffer.split('\n');
+  buffer = lines.pop() || ''; // Simpan sisa data yang belum lengkap di buffer
+
   lines.forEach((line) => {
     if (isValidNmea(line.trim())) {
-      try {
-        // Proses data GPS (NMEA) dan AIS
-        processNmeaOrAis(line.trim());
-      } catch (err) {
-        console.error('Failed to decode line:', line, 'Error:', err);
-      }
-    } else {
-      console.error('Invalid NMEA data:', line);
+      dataQueue.push(line.trim()); // Tambahkan ke queue
     }
   });
 });
 
+// Tangani koneksi tertutup
 client.on('close', () => {
   console.log('Connection closed');
 });
 
+// Tangani error dari client
 client.on('error', (err) => {
-  console.error(`Error: ${err.message}`);
+  console.error(`Socket Error: ${err.message}`);
 });
 
-// Fungsi untuk memproses data NMEA atau AIS
-const processNmeaOrAis = (line: string) => {
+const processNmeaOrAis = async (line: string) => {
   if (line.startsWith('$')) {
-    // Mendecode data GPS (NMEA)
     try {
       const decodedNmea = parseNmeaSentence(line);
-      saveGpsData(decodedNmea); // Simpan data GPS ke MongoDB
+      saveGpsData(decodedNmea);
     } catch (err) {
-      return;
+      console.log(line, "Sentence error: failed to decode");
+      await new Promise(resolve => setTimeout(resolve, 10));  // Tambahkan delay 10ms
     }
   } else {
-    // Jika tidak mulai dengan $, anggap data AIS dan masukkan ke parser AIS
-    parser.write(line);
+    try {
+      parser.write(line);
+    } catch (err) {
+      console.log("Sentence error: failed to decode");
+      await new Promise(resolve => setTimeout(resolve, 10));  // Tambahkan delay 10ms
+    }
   }
 };
+
+
 
 // Fungsi untuk menyimpan data GPS ke MongoDB
 const saveGpsData = async (nmeaData: any) => {
   try {
-    // Misalnya ini data dari kalimat NMEA tipe GLL (Latitude/Longitude)
-    if (nmeaData.sentenceId === 'GLL') {
-      const { latitude, longitude, time, status } = nmeaData;
-      if (status === 'A') { // Hanya simpan jika data valid (A untuk valid, V untuk invalid)
-        const gpsData = new gpsAisData({
-          lat: latitude,
-          lon: longitude,
-          timestamp: time,
-          type: 'GPS'
-        });
-        await gpsData.save();
-        console.log('Saved GPS data to MongoDB:', gpsData);
-      }
+    if (nmeaData.sentenceId === 'GLL' && nmeaData.status === 'A') {
+      const gpsData = new gpsAisData({
+        lat: nmeaData.latitude,
+        lon: nmeaData.longitude,
+        timestamp: new Date(), // Timestamp saat data diproses
+        type: 'GPS'
+      });
+      await gpsData.save();
+      console.log('Saved GPS data to MongoDB:', gpsData);
     }
-    // Tambahkan penanganan tipe kalimat NMEA lain di sini jika diperlukan
   } catch (error) {
     console.error('Error saving GPS data to MongoDB:', error);
   }
 };
+
 // Rute untuk mengambil data log AIS dari collection aisLog
 router.get('/ais-log', async (req, res) => {
   try {
@@ -144,5 +150,8 @@ router.get('/ships', async (req, res) => {
 function isValidNmea(data: string): boolean {
   return data.startsWith('$') || data.startsWith('!');
 }
+
+// Mulai pemrosesan queue secara terus menerus
+processQueue();
 
 export default router;

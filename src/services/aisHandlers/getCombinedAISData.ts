@@ -65,8 +65,11 @@ export const getAndCombineAisData = async (mmsi: number) => {
     moment((b as any).timestamp).diff(moment((a as any).timestamp))
   )[0];
 
+
   if (latestDynamicData && (latestDynamicData as any).longitude && (latestDynamicData as any).latitude) {
-    const formattedTimestamp = moment.utc((latestDynamicData as any).timestamp).format('DD-MM-YYYY HH:mm:ss');
+    // Gunakan waktu sekarang untuk timestamp
+    const now = new Date();
+    const formattedTimestamp = moment(now).format('DD-MM-YYYY HH:mm:ss');
 
     const combinedData = {
       mmsi: (latestDynamicData as any).mmsi,
@@ -80,18 +83,18 @@ export const getAndCombineAisData = async (mmsi: number) => {
         (latestStaticData as any)?.vesselType || undefined,
       speedOverGround: (latestDynamicData as any).speedOverGround || undefined,
       courseOverGround: (latestDynamicData as any).courseOverGround || undefined,
-      heading: (latestDynamicData as any).heading || 0,
-      timestamp: formattedTimestamp,
+      heading: 360 -(latestDynamicData as any).heading || 0,
+      timestamp: formattedTimestamp, // Waktu saat ini
       destination: (latestStaticData as any)?.destination || undefined,
     };
-
+  
     const existingData = await CombinedAisData.findOne({ mmsi: combinedData.mmsi });
     const existingTimestamp = existingData && (existingData as any).timestamp
       ? moment((existingData as any).timestamp, 'DD-MM-YYYY HH:mm:ss')
       : null;
-
+  
     const newTimestamp = moment(combinedData.timestamp, 'DD-MM-YYYY HH:mm:ss');
-
+  
     if (!existingTimestamp || newTimestamp.isAfter(existingTimestamp)) {
       await CombinedAisData.updateOne({ mmsi: combinedData.mmsi }, combinedData, { upsert: true });
       console.log(`Updated AIS data for MMSI: ${combinedData.mmsi} with timestamp: ${combinedData.timestamp}`);
@@ -101,4 +104,5 @@ export const getAndCombineAisData = async (mmsi: number) => {
   } else {
     console.log(`Dynamic data is incomplete (missing longitude or latitude) for mmsi: ${mmsi}`);
   }
+  
 };

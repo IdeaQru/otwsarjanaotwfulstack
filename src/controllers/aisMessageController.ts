@@ -29,103 +29,101 @@ import { io } from '../index'; // Import instance io
 
 export const processAisMessage = async (data: any) => {
   try {
-    // console.log('Processing AIS Data:', data);
-
     switch (data.type) {
       case 1:
       case 2:
       case 3:
-        await handleType1_2_and3(data);
+        await handleTypeWithCatch(handleType1_2_and3, data);
         break;
       case 4:
-        await handleType4(data);
+        await handleTypeWithCatch(handleType4, data);
         break;
       case 5:
-        await handleType5(data);
+        await handleTypeWithCatch(handleType5, data);
         break;
       case 6:
-        await handleType6(data);
+        await handleTypeWithCatch(handleType6, data);
         break;
       case 7:
-        await handleType7(data);
+        await handleTypeWithCatch(handleType7, data);
         break;
       case 8:
-        await handleType8(data);
+        await handleTypeWithCatch(handleType8, data);
         break;
       case 9:
-        await handleType9(data);
+        await handleTypeWithCatch(handleType9, data);
         break;
       case 10:
-        await handleType10(data);
+        await handleTypeWithCatch(handleType10, data);
         break;
       case 11:
-        await handleType11(data);
+        await handleTypeWithCatch(handleType11, data);
         break;
       case 12:
-        await handleType12(data);
+        await handleTypeWithCatch(handleType12, data);
         break;
       case 13:
-        await handleType13(data);
+        await handleTypeWithCatch(handleType13, data);
         break;
       case 14:
-        await handleType14(data);
+        await handleTypeWithCatch(handleType14, data);
         break;
       case 15:
-        await handleType15(data);
+        await handleTypeWithCatch(handleType15, data);
         break;
       case 16:
-        await handleType16(data);
+        await handleTypeWithCatch(handleType16, data);
         break;
       case 17:
-        await handleType17(data);
+        await handleTypeWithCatch(handleType17, data);
         break;
       case 18:
-        await handleType18(data);
+        await handleTypeWithCatch(handleType18, data);
         break;
       case 19:
-        await handleType19(data);
+        await handleTypeWithCatch(handleType19, data);
         break;
       case 20:
-        await handleType20(data);
+        await handleTypeWithCatch(handleType20, data);
         break;
       case 21:
-        await handleType21(data);
+        await handleTypeWithCatch(handleType21, data);
         break;
       case 22:
-        await handleType22(data);
+        await handleTypeWithCatch(handleType22, data);
         break;
       case 23:
-        await handleType23(data);
+        await handleTypeWithCatch(handleType23, data);
         break;
       case 24:
         if (data.partNum === 0) {
-          await handleType24a(data);
+          await handleTypeWithCatch(handleType24a, data);
         } else if (data.partNum === 1) {
-          await handleType24b(data);
+          await handleTypeWithCatch(handleType24b, data);
         }
         break;
       case 25:
-        await handleType25(data);
+        await handleTypeWithCatch(handleType25, data);
         break;
       case 26:
-        await handleType26(data);
+        await handleTypeWithCatch(handleType26, data);
         break;
       case 27:
-        await handleType27(data);
+        await handleTypeWithCatch(handleType27, data);
         break;
       default:
         console.log(`Jenis data AIS tidak dikenali: ${data.type}`);
     }
-
-    // Emit event to clients via socket.io
-    io.emit('aisData', {
-      ...data,
-      timestamp: new Date().toISOString(),
-    });
-
   } catch (err) {
-    console.error('Error processing AIS data:', err);
+    console.error('General error in processAisMessage:', err);
   }
+};
 
-  await delay(3000);
+// Wrapper function to handle errors within each handler
+const handleTypeWithCatch = async (handler: Function, data: any) => {
+  try {
+    await handler(data);
+  } catch (err) {
+    console.error(`Error in handler ${handler.name} for data type ${data.type}:`, err);
+  }
 };
