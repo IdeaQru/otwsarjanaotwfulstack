@@ -16,15 +16,20 @@ exports.handleType8 = void 0;
 const aisType8data_1 = __importDefault(require("../../models/aisType8data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType8 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType8Data = new aisType8data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        binaryData: data.binaryData,
-        timestamp: new Date(),
-    });
-    yield aisType8Data.save();
-    console.log('AIS Type 8 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType8Data = new aisType8data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            binaryData: data.binaryData,
+            timestamp: new Date(),
+        });
+        yield aisType8Data.save();
+        // console.log('AIS Type 8 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType8 = handleType8;

@@ -16,17 +16,22 @@ exports.handleType24a = void 0;
 const aisType24Adata_1 = __importDefault(require("../../models/aisType24Adata"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType24a = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType24AData = new aisType24Adata_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        partNum: data.partNum,
-        name: data.name,
-        timestamp: new Date(),
-        sentence: data.sentences,
-    });
-    yield aisType24AData.save();
-    console.log('AIS Type 24 Part A Data berhasil disimpan ke database');
-    // Perbarui data gabungan
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType24AData = new aisType24Adata_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            partNum: data.partNum,
+            name: data.name,
+            timestamp: new Date(),
+            sentence: data.sentences,
+        });
+        yield aisType24AData.save();
+        // console.log('AIS Type 24 Part A Data berhasil disimpan ke database');
+        // Perbarui data gabungan
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType24a = handleType24a;

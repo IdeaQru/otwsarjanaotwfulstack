@@ -16,23 +16,28 @@ exports.handleType11 = void 0;
 const aisType11data_1 = __importDefault(require("../../models/aisType11data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType11 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType11Data = new aisType11data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        utcYear: data.utcYear,
-        utcMonth: data.utcMonth,
-        utcDay: data.utcDay,
-        utcHour: data.utcHour,
-        utcMinute: data.utcMinute,
-        positionAccuracy: data.positionAccuracy,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        epfd: data.epfd,
-        timestamp: new Date(),
-    });
-    yield aisType11Data.save();
-    console.log('AIS Type 11 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType11Data = new aisType11data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            utcYear: data.utcYear,
+            utcMonth: data.utcMonth,
+            utcDay: data.utcDay,
+            utcHour: data.utcHour,
+            utcMinute: data.utcMinute,
+            positionAccuracy: data.positionAccuracy,
+            longitude: data.longitude,
+            latitude: data.latitude,
+            epfd: data.epfd,
+            timestamp: new Date(),
+        });
+        yield aisType11Data.save();
+        // console.log('AIS Type 11 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType11 = handleType11;

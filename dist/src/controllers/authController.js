@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.login = exports.register = void 0;
+exports.getSupervisors = exports.logout = exports.login = exports.register = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -51,7 +51,9 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, secret, { expiresIn: '1h' });
         res.status(200).json({
             token,
-            userName: user.username // Pastikan Anda mengirimkan `username` dalam respons
+            userName: user.username, // Pastikan Anda mengirimkan `username` dalam respons
+            role: user.role,
+            id: user._id
         });
     }
     catch (error) {
@@ -63,3 +65,16 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(200).json({ message: 'Logout successful' });
 });
 exports.logout = logout;
+const getSupervisors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Mencari semua user yang memiliki role 'supervisor'
+        const supervisors = yield userModel_1.default.find({ role: 'supervisor' }).select('-password');
+        // Mengembalikan daftar supervisor
+        return res.status(200).json(supervisors);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching supervisors' });
+    }
+});
+exports.getSupervisors = getSupervisors;

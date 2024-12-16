@@ -16,19 +16,24 @@ exports.handleType6 = void 0;
 const aisType6data_1 = __importDefault(require("../../models/aisType6data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType6 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType6Data = new aisType6data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        sequenceNumber: data.sequenceNumber,
-        destinationMMSI: data.destinationMMSI,
-        retransmitFlag: data.retransmitFlag,
-        spare: data.spare,
-        binaryData: data.binaryData,
-        timestamp: new Date(),
-    });
-    yield aisType6Data.save();
-    console.log('AIS Type 6 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType6Data = new aisType6data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            sequenceNumber: data.sequenceNumber,
+            destinationMMSI: data.destinationMMSI,
+            retransmitFlag: data.retransmitFlag,
+            spare: data.spare,
+            binaryData: data.binaryData,
+            timestamp: new Date(),
+        });
+        yield aisType6Data.save();
+        // console.log('AIS Type 6 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType6 = handleType6;

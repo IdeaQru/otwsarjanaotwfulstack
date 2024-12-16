@@ -16,26 +16,31 @@ exports.handleType19 = void 0;
 const aisType19data_1 = __importDefault(require("../../models/aisType19data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType19 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType19Data = new aisType19data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        speedOverGround: data.speedOverGround,
-        positionAccuracy: data.positionAccuracy,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        courseOverGround: data.courseOverGround,
-        heading: data.heading,
-        timestamp: new Date(),
-        shipType: data.shipType,
-        shipLength: data.shipLength,
-        shipWidth: data.shipWidth,
-        epfd: data.epfd,
-        destination: data.destination,
-        dte: data.dte,
-    });
-    yield aisType19Data.save();
-    console.log('AIS Type 19 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType19Data = new aisType19data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            speedOverGround: data.speedOverGround,
+            positionAccuracy: data.positionAccuracy,
+            longitude: data.longitude,
+            latitude: data.latitude,
+            courseOverGround: data.courseOverGround,
+            heading: data.heading,
+            timestamp: new Date(),
+            shipType: data.shipType,
+            shipLength: data.shipLength,
+            shipWidth: data.shipWidth,
+            epfd: data.epfd,
+            destination: data.destination,
+            dte: data.dte,
+        });
+        yield aisType19Data.save();
+        // console.log('AIS Type 19 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType19 = handleType19;

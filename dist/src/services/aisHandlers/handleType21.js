@@ -16,28 +16,33 @@ exports.handleType21 = void 0;
 const aisType21data_1 = __importDefault(require("../../models/aisType21data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType21 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType21Data = new aisType21data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        aidType: data.aidType,
-        name: data.name,
-        positionAccuracy: data.positionAccuracy,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        dimensionToBow: data.dimensionToBow,
-        dimensionToStern: data.dimensionToStern,
-        dimensionToPort: data.dimensionToPort,
-        dimensionToStarboard: data.dimensionToStarboard,
-        epfd: data.epfd,
-        secondMark: data.secondMark,
-        offPositionIndicator: data.offPositionIndicator,
-        virtualAid: data.virtualAid,
-        assignedModeFlag: data.assignedModeFlag,
-        timestamp: new Date(),
-    });
-    yield aisType21Data.save();
-    console.log('AIS Type 21 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType21Data = new aisType21data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            aidType: data.aidType,
+            name: data.name,
+            positionAccuracy: data.positionAccuracy,
+            longitude: data.longitude,
+            latitude: data.latitude,
+            dimensionToBow: data.dimensionToBow,
+            dimensionToStern: data.dimensionToStern,
+            dimensionToPort: data.dimensionToPort,
+            dimensionToStarboard: data.dimensionToStarboard,
+            epfd: data.epfd,
+            secondMark: data.secondMark,
+            offPositionIndicator: data.offPositionIndicator,
+            virtualAid: data.virtualAid,
+            assignedModeFlag: data.assignedModeFlag,
+            timestamp: new Date(),
+        });
+        yield aisType21Data.save();
+        // console.log('AIS Type 21 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType21 = handleType21;

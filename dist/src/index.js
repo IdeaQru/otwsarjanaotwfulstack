@@ -17,13 +17,16 @@ const shapeZone_1 = __importDefault(require("./models/shapeZone"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const apiMiddleware_1 = require("./middleware/apiMiddleware");
 const node_cron_1 = __importDefault(require("node-cron"));
+const mailZoneRoutes_1 = __importDefault(require("./routes/mailZoneRoutes"));
+const apiKeyRoutes_1 = __importDefault(require("./routes/apiKeyRoutes"));
 // Inisialisasi Express
 const app = (0, express_1.default)();
 // Konfigurasi CORS
 const corsOptions = {
-    origin: 'http://localhost:4200',
+    origin: '*', // Masukkan IP frontend kamu
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'my-custom-header']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true // Jika menggunakan cookie atau token
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
@@ -33,6 +36,8 @@ app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use('/api', aisRoutes_1.default);
 app.use('/api', shapeRoutes_1.default);
 app.use('/api', authRoutes_1.default);
+app.use('/api', mailZoneRoutes_1.default);
+app.use('/api', apiKeyRoutes_1.default);
 // Connect to database
 (0, database_1.default)().catch((err) => console.error('Failed to connect to DB', err));
 // Jalankan update API key pertama kali saat server start
@@ -45,11 +50,17 @@ node_cron_1.default.schedule('0 0 * * *', () => {
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: 'http://localhost:4200',
-        methods: ['GET', 'POST']
+        origin: ['http://localhost:4200', 'http://165.154.208.232:4200'], // Domain yang diizinkan
+        methods: ['GET', 'POST'],
+        credentials: true // Jika ada cookie atau token yang digunakan
     }
 });
 exports.io = io;
+const angularDistPath = path_1.default.join(__dirname, '../angular-aisweb');
+app.use(express_1.default.static(angularDistPath));
+app.get('*', (req, res) => {
+    res.sendFile(path_1.default.join(angularDistPath, 'index.html'));
+});
 // Event handler untuk koneksi socket.io
 io.on('connection', (socket) => {
     console.log('a user connected');

@@ -16,18 +16,23 @@ exports.handleType4 = void 0;
 const aisType4data_1 = __importDefault(require("../../models/aisType4data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType4 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType4Data = new aisType4data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        timestamp: data.timestamp,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        epfd: data.epfd,
-        dateTime: new Date(),
-    });
-    yield aisType4Data.save();
-    console.log('AIS Type 4 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType4Data = new aisType4data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            timestamp: data.timestamp,
+            longitude: data.longitude,
+            latitude: data.latitude,
+            epfd: data.epfd,
+            dateTime: new Date(),
+        });
+        yield aisType4Data.save();
+        // console.log('AIS Type 4 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType4 = handleType4;

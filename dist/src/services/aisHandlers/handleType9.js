@@ -16,20 +16,25 @@ exports.handleType9 = void 0;
 const aisType9data_1 = __importDefault(require("../../models/aisType9data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType9 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType9Data = new aisType9data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        altitude: data.altitude,
-        speedOverGround: data.speedOverGround,
-        positionAccuracy: data.positionAccuracy,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        courseOverGround: data.courseOverGround,
-        timestamp: new Date(),
-    });
-    yield aisType9Data.save();
-    console.log('AIS Type 9 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType9Data = new aisType9data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            altitude: data.altitude,
+            speedOverGround: data.speedOverGround,
+            positionAccuracy: data.positionAccuracy,
+            longitude: data.longitude,
+            latitude: data.latitude,
+            courseOverGround: data.courseOverGround,
+            timestamp: new Date(),
+        });
+        yield aisType9Data.save();
+        // console.log('AIS Type 9 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType9 = handleType9;

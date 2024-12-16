@@ -16,25 +16,30 @@ exports.handleType22 = void 0;
 const aisType22data_1 = __importDefault(require("../../models/aisType22data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType22 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType22Data = new aisType22data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        channelA: data.channelA,
-        channelB: data.channelB,
-        txRxMode: data.txRxMode,
-        power: data.power,
-        northeastLongitude: data.northeastLongitude,
-        northeastLatitude: data.northeastLatitude,
-        southwestLongitude: data.southwestLongitude,
-        southwestLatitude: data.southwestLatitude,
-        addressed: data.addressed,
-        bandwidthA: data.bandwidthA,
-        bandwidthB: data.bandwidthB,
-        timestamp: new Date(),
-    });
-    yield aisType22Data.save();
-    console.log('AIS Type 22 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType22Data = new aisType22data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            channelA: data.channelA,
+            channelB: data.channelB,
+            txRxMode: data.txRxMode,
+            power: data.power,
+            northeastLongitude: data.northeastLongitude,
+            northeastLatitude: data.northeastLatitude,
+            southwestLongitude: data.southwestLongitude,
+            southwestLatitude: data.southwestLatitude,
+            addressed: data.addressed,
+            bandwidthA: data.bandwidthA,
+            bandwidthB: data.bandwidthB,
+            timestamp: new Date(),
+        });
+        yield aisType22Data.save();
+        // console.log('AIS Type 22 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType22 = handleType22;

@@ -16,23 +16,28 @@ exports.handleType23 = void 0;
 const aisType23data_1 = __importDefault(require("../../models/aisType23data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType23 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType23Data = new aisType23data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        northeastLongitude: data.northeastLongitude,
-        northeastLatitude: data.northeastLatitude,
-        southwestLongitude: data.southwestLongitude,
-        southwestLatitude: data.southwestLatitude,
-        stationType: data.stationType,
-        typeAndPower: data.typeAndPower,
-        txRxMode: data.txRxMode,
-        reportInterval: data.reportInterval,
-        quietTime: data.quietTime,
-        timestamp: new Date(),
-    });
-    yield aisType23Data.save();
-    console.log('AIS Type 23 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType23Data = new aisType23data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            northeastLongitude: data.northeastLongitude,
+            northeastLatitude: data.northeastLatitude,
+            southwestLongitude: data.southwestLongitude,
+            southwestLatitude: data.southwestLatitude,
+            stationType: data.stationType,
+            typeAndPower: data.typeAndPower,
+            txRxMode: data.txRxMode,
+            reportInterval: data.reportInterval,
+            quietTime: data.quietTime,
+            timestamp: new Date(),
+        });
+        yield aisType23Data.save();
+        // console.log('AIS Type 23 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType23 = handleType23;

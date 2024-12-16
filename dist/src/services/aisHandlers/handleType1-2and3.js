@@ -32,9 +32,8 @@ const handleType1_2_and3 = (data) => __awaiter(void 0, void 0, void 0, function*
             sentences: data.sentences || [], // Ensure that sentences field is included
         });
         yield aisType1_2_and3Data.save();
-        console.log('AIS Type 1, 2, or 3 Data successfully saved to the database.');
         // Update combined AIS data
-        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+        (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
     }
     catch (error) {
         console.error('Error saving AIS Type 1, 2, or 3 Data:', error);

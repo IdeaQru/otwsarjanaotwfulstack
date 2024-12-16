@@ -16,15 +16,20 @@ exports.handleType10 = void 0;
 const aisType10data_1 = __importDefault(require("../../models/aisType10data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType10 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType10Data = new aisType10data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        destinationMMSI: data.destinationMMSI,
-        timestamp: new Date(),
-    });
-    yield aisType10Data.save();
-    console.log('AIS Type 10 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType10Data = new aisType10data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            destinationMMSI: data.destinationMMSI,
+            timestamp: new Date(),
+        });
+        yield aisType10Data.save();
+        // console.log('AIS Type 10 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType10 = handleType10;

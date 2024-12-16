@@ -36,103 +36,106 @@ const handleType24b_1 = require("../services/aisHandlers/handleType24b");
 const handleType25_1 = require("../services/aisHandlers/handleType25");
 const handleType26_1 = require("../services/aisHandlers/handleType26");
 const handleType27_1 = require("../services/aisHandlers/handleType27");
-const delay_1 = require("../utils/delay");
-const index_1 = require("../index"); // Import instance io
 const processAisMessage = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('Processing AIS Data:', data);
         switch (data.type) {
             case 1:
             case 2:
             case 3:
-                yield (0, handleType1_2and3_1.handleType1_2_and3)(data);
+                yield handleTypeWithCatch(handleType1_2and3_1.handleType1_2_and3, data);
                 break;
             case 4:
-                yield (0, handleType4_1.handleType4)(data);
+                yield handleTypeWithCatch(handleType4_1.handleType4, data);
                 break;
             case 5:
-                yield (0, handleType5_1.handleType5)(data);
+                yield handleTypeWithCatch(handleType5_1.handleType5, data);
                 break;
             case 6:
-                yield (0, handleType6_1.handleType6)(data);
+                yield handleTypeWithCatch(handleType6_1.handleType6, data);
                 break;
             case 7:
-                yield (0, handleType7_1.handleType7)(data);
+                yield handleTypeWithCatch(handleType7_1.handleType7, data);
                 break;
             case 8:
-                yield (0, handleType8_1.handleType8)(data);
+                yield handleTypeWithCatch(handleType8_1.handleType8, data);
                 break;
             case 9:
-                yield (0, handleType9_1.handleType9)(data);
+                yield handleTypeWithCatch(handleType9_1.handleType9, data);
                 break;
             case 10:
-                yield (0, handleType10_1.handleType10)(data);
+                yield handleTypeWithCatch(handleType10_1.handleType10, data);
                 break;
             case 11:
-                yield (0, handleType11_1.handleType11)(data);
+                yield handleTypeWithCatch(handleType11_1.handleType11, data);
                 break;
             case 12:
-                yield (0, handleType12_1.handleType12)(data);
+                yield handleTypeWithCatch(handleType12_1.handleType12, data);
                 break;
             case 13:
-                yield (0, handleType13_1.handleType13)(data);
+                yield handleTypeWithCatch(handleType13_1.handleType13, data);
                 break;
             case 14:
-                yield (0, handleType14_1.handleType14)(data);
+                yield handleTypeWithCatch(handleType14_1.handleType14, data);
                 break;
             case 15:
-                yield (0, handleType15_1.handleType15)(data);
+                yield handleTypeWithCatch(handleType15_1.handleType15, data);
                 break;
             case 16:
-                yield (0, handleType16_1.handleType16)(data);
+                yield handleTypeWithCatch(handleType16_1.handleType16, data);
                 break;
             case 17:
-                yield (0, handleType17_1.handleType17)(data);
+                yield handleTypeWithCatch(handleType17_1.handleType17, data);
                 break;
             case 18:
-                yield (0, handleType18_1.handleType18)(data);
+                yield handleTypeWithCatch(handleType18_1.handleType18, data);
                 break;
             case 19:
-                yield (0, handleType19_1.handleType19)(data);
+                yield handleTypeWithCatch(handleType19_1.handleType19, data);
                 break;
             case 20:
-                yield (0, handleType20_1.handleType20)(data);
+                yield handleTypeWithCatch(handleType20_1.handleType20, data);
                 break;
             case 21:
-                yield (0, handleType21_1.handleType21)(data);
+                yield handleTypeWithCatch(handleType21_1.handleType21, data);
                 break;
             case 22:
-                yield (0, handleType22_1.handleType22)(data);
+                yield handleTypeWithCatch(handleType22_1.handleType22, data);
                 break;
             case 23:
-                yield (0, handleType23_1.handleType23)(data);
+                yield handleTypeWithCatch(handleType23_1.handleType23, data);
                 break;
             case 24:
                 if (data.partNum === 0) {
-                    yield (0, handleType24a_1.handleType24a)(data);
+                    yield handleTypeWithCatch(handleType24a_1.handleType24a, data);
                 }
                 else if (data.partNum === 1) {
-                    yield (0, handleType24b_1.handleType24b)(data);
+                    yield handleTypeWithCatch(handleType24b_1.handleType24b, data);
                 }
                 break;
             case 25:
-                yield (0, handleType25_1.handleType25)(data);
+                yield handleTypeWithCatch(handleType25_1.handleType25, data);
                 break;
             case 26:
-                yield (0, handleType26_1.handleType26)(data);
+                yield handleTypeWithCatch(handleType26_1.handleType26, data);
                 break;
             case 27:
-                yield (0, handleType27_1.handleType27)(data);
+                yield handleTypeWithCatch(handleType27_1.handleType27, data);
                 break;
             default:
                 console.log(`Jenis data AIS tidak dikenali: ${data.type}`);
         }
-        // Emit event to clients via socket.io
-        index_1.io.emit('aisData', Object.assign(Object.assign({}, data), { timestamp: new Date().toISOString() }));
     }
     catch (err) {
-        console.error('Error processing AIS data:', err);
+        console.error('General error in processAisMessage:', err);
     }
-    yield (0, delay_1.delay)(3000);
 });
 exports.processAisMessage = processAisMessage;
+// Wrapper function to handle errors within each handler
+const handleTypeWithCatch = (handler, data) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield handler(data);
+    }
+    catch (err) {
+        console.error(`Error in handler ${handler.name} for data type ${data.type}:`, err);
+    }
+});

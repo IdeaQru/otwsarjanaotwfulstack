@@ -16,25 +16,30 @@ exports.handleType24b = void 0;
 const aisType24Bdata_1 = __importDefault(require("../../models/aisType24Bdata"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType24b = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType24BData = new aisType24Bdata_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        partNum: data.partNum,
-        typeAndCargo: data.typeAndCargo,
-        vendorId: data.vendorId || '',
-        modelType: data.model, // Use renamed property
-        serial: data.serial,
-        callsign: data.callsign,
-        dimBow: data.dimBow,
-        dimStern: data.dimStern,
-        dimPort: data.dimPort,
-        dimStarboard: data.dimStarboard,
-        timestamp: new Date(),
-        sentence: data.sentences,
-    });
-    yield aisType24BData.save();
-    console.log('AIS Type 24 Part B Data berhasil disimpan ke database');
-    // Perbarui data gabungan
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType24BData = new aisType24Bdata_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            partNum: data.partNum,
+            typeAndCargo: data.typeAndCargo,
+            vendorId: data.vendorId || '',
+            modelType: data.model, // Use renamed property
+            serial: data.serial,
+            callsign: data.callsign,
+            dimBow: data.dimBow,
+            dimStern: data.dimStern,
+            dimPort: data.dimPort,
+            dimStarboard: data.dimStarboard,
+            timestamp: new Date(),
+            sentence: data.sentences,
+        });
+        yield aisType24BData.save();
+        // console.log('AIS Type 24 Part B Data berhasil disimpan ke database');
+        // Perbarui data gabungan
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType24b = handleType24b;

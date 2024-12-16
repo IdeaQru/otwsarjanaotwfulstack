@@ -16,19 +16,24 @@ exports.handleType27 = void 0;
 const aisType27data_1 = __importDefault(require("../../models/aisType27data"));
 const getCombinedAISData_1 = require("../../services/aisHandlers/getCombinedAISData");
 const handleType27 = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const aisType27Data = new aisType27data_1.default({
-        type: data.type,
-        mmsi: data.mmsi,
-        positionAccuracy: data.positionAccuracy,
-        raimFlag: data.raimFlag,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        positionStatus: data.positionStatus,
-        timestamp: new Date(),
-    });
-    yield aisType27Data.save();
-    console.log('AIS Type 27 Data berhasil disimpan ke database');
-    // Update combined AIS data
-    yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    try {
+        const aisType27Data = new aisType27data_1.default({
+            type: data.type,
+            mmsi: data.mmsi,
+            positionAccuracy: data.positionAccuracy,
+            raimFlag: data.raimFlag,
+            longitude: data.longitude,
+            latitude: data.latitude,
+            positionStatus: data.positionStatus,
+            timestamp: new Date(),
+        });
+        yield aisType27Data.save();
+        // console.log('AIS Type 27 Data berhasil disimpan ke database');
+        // Update combined AIS data
+        yield (0, getCombinedAISData_1.getAndCombineAisData)(data.mmsi);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.handleType27 = handleType27;
