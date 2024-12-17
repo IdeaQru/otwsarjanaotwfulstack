@@ -51,7 +51,9 @@ export const login = async (req: Request, res: Response) => {
 
     res.status(200).json({
       token,
-      userName: user.username  // Pastikan Anda mengirimkan `username` dalam respons
+      userName: user.username, // Pastikan Anda mengirimkan `username` dalam respons
+      role: user.role,
+      id: user._id
     });
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong', error });
@@ -61,3 +63,16 @@ export const login = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
   res.status(200).json({ message: 'Logout successful' });
 }
+
+export const getSupervisors = async (req: Request, res: Response) => {
+  try {
+    // Mencari semua user yang memiliki role 'supervisor'
+    const supervisors = await User.find({ role: 'supervisor' }).select('-password');
+
+    // Mengembalikan daftar supervisor
+    return res.status(200).json(supervisors);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error fetching supervisors' });
+  }
+};

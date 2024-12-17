@@ -12,7 +12,8 @@ import { delay } from './utils/delay';
 import authRoutes from './routes/authRoutes';
 import { updateApiKey } from './middleware/apiMiddleware';
 import cron from 'node-cron';
-
+import mailZoneRoutes from './routes/mailZoneRoutes';
+import apiKeyRoutes from './routes/apiKeyRoutes';
 // Inisialisasi Express
 const app = express();
 
@@ -28,6 +29,7 @@ const corsOptions = {
 
 
 
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -38,6 +40,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', aisRoutes);
 app.use('/api', shapeRoutes);
 app.use('/api', authRoutes);
+app.use('/api', mailZoneRoutes);
+app.use('/api', apiKeyRoutes);
+
 
 // Connect to database
 connectDB().catch((err) => console.error('Failed to connect to DB', err));
@@ -60,8 +65,11 @@ const io = new SocketIOServer(server, {
   }
 });
 
-
-
+const angularDistPath = path.join(__dirname, '../angular-aisweb');
+app.use(express.static(angularDistPath));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(angularDistPath, 'index.html'));
+});
 // Event handler untuk koneksi socket.io
 io.on('connection', (socket) => {
   console.log('a user connected');

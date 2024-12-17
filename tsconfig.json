@@ -19,7 +19,7 @@
   "include": [
     "src/**/*.ts",
     "index.ts"
-, "src/server.ts"  ],
+, "src/server.ts", "src/ais-decoder.d.ts"  ],
   "exclude": [
     "node_modules",
     "dist"

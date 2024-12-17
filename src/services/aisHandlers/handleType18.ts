@@ -32,7 +32,6 @@ export const handleType18 = async (data: any) => {
 
     // console.log('AIS Type 18 Data berhasil disimpan ke database');
     // Perbarui data gabungan
-    getAndCombineAisData(data.mmsi);
   } catch (error) {
     console.log(error);
   }

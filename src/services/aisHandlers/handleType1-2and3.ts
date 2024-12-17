@@ -19,7 +19,6 @@ export const handleType1_2_and3 = async (data: any) => {
     });
 
     await aisType1_2_and3Data.save();
-    // console.log('AIS Type 1, 2, or 3 Data successfully saved to the database.');
 
     // Update combined AIS data
    getAndCombineAisData(data.mmsi);
