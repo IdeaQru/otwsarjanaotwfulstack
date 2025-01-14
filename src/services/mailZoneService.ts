@@ -54,4 +54,10 @@ export class MailZoneService {
       throw new Error('Error fetching mail zones');
     }
   }
+  async getMailZoneById(id: string): Promise<any> {
+    return MailZone.findById(id);
+  }
+  async deleteMailZone(id: string): Promise<any> {
+    return MailZone.findByIdAndDelete(id);
+  }
 }

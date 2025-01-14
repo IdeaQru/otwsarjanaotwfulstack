@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start:dev": "npx ts-node src/server.ts",
+    "qru": "npx ts-node src/server.ts",
     "build": "npx tsc",
-    "start": "npm run build && node dist/server.js"
+    "start": "node dist/server.js"
   },
   "author": "",
   "license": "ISC",

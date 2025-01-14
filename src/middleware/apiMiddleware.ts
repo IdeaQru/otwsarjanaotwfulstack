@@ -17,7 +17,7 @@ export const verifyApiKey = (req: Request, res: Response, next: NextFunction) =>
 // Fungsi untuk memperbarui API key
 export const updateApiKey = () => {
   apiKey = jwt.sign({ date: new Date() }, secretKey, { expiresIn: '1d' });
-  console.log('API key updated:', apiKey);
+  // console.log('API key updated:', apiKey);
   fs.writeFileSync('apikey.txt', `API key: ${apiKey}\n`, { flag: 'a' });
 
   console.log('API key updated and saved to apikey.txt');

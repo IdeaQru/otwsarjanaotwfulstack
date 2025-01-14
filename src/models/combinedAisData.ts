@@ -33,6 +33,7 @@ interface ICombinedAisData extends Document {
     distance: number; // Jarak dalam meter atau kilometer
     relativeBearing: number; // Arah relatif (dalam derajat) dari kapal ini
   }>;
+  expiresAt: Date;
 }
 
 const CombinedAisDataSchema = new Schema<ICombinedAisData>({
@@ -78,7 +79,8 @@ const CombinedAisDataSchema = new Schema<ICombinedAisData>({
       relativeBearing: { type: Number, required: true }, // Dalam derajat
     },
   ],
+  expiresAt: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) }, 
 });
-
+CombinedAisDataSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 const CombinedAisData = model<ICombinedAisData>('CombinedAisData', CombinedAisDataSchema);
 export default CombinedAisData;

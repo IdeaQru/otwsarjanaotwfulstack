@@ -8,7 +8,7 @@ const userSchema = new mongoose_1.default.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['user', 'admin', 'supervisor'], default: 'user' }, // Default ke 'user'
+    role: { type: String, enum: ['user', 'admin', 'super-admin'], default: 'user' }, // Default ke 'user'
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

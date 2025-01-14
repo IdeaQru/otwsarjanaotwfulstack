@@ -1,7 +1,8 @@
 import express from 'express';
 import { saveShape, getShapes, deleteShape,  getPolygonShapes,
     getCircleShapes,
-    getMmsiAndCoordinates,} from '../controllers/shapeController';
+    getMmsiAndCoordinates,
+    editShape,} from '../controllers/shapeController';
 import { verifyApiKey } from '../middleware/apiMiddleware';
 
 const router = express.Router();
@@ -12,5 +13,5 @@ router.delete('/shapes/:id', deleteShape);
 router.get('/shapes/polygon', getPolygonShapes);
 router.get('/shapes/circle', getCircleShapes);
 router.get('/shapes/mmsi-coordinates', verifyApiKey, getMmsiAndCoordinates); // Route baru untuk mmsi dan coordinates
-
+router.put('/shapes/:id', editShape);
 export default router;

@@ -6,11 +6,12 @@ import { parseNmeaSentence } from 'nmea-simple';
 import { delay } from '../utils/delay';
 import CombinedAisData from '../models/combinedAisData';
 import AisLog from '../models/aisLog';
-import RawAisData from '../models/rawAisData';
 import { gpsAisData } from '../models/gpsAisdata';
+import { startBatchProcessor } from '../services/services2/batchProcessor';
+import { connectToTelnet } from '../services/services2/telnet';
 
 const router = Router();
-const HOST = '103.24.49.238';
+const HOST = '103.24.49.138';
 const AIS_PORT = 21279;
 
 const parser = new AisDecoder();
@@ -82,18 +83,29 @@ const processNmeaOrAis = async (line: string) => {
       const decodedNmea = parseNmeaSentence(line);
       saveGpsData(decodedNmea);
     } catch (err) {
-      console.log(line, "Sentence error: failed to decode");
-      await new Promise(resolve => setTimeout(resolve, 10));  // Tambahkan delay 10ms
+      console.error(`${line}: Failed to decode NMEA sentence, skipping...`);
     }
   } else {
     try {
       parser.write(line);
     } catch (err) {
-      console.log("Sentence error: failed to decode");
-      await new Promise(resolve => setTimeout(resolve, 10));  // Tambahkan delay 10ms
+      console.error(`${line}: Failed to decode AIS sentence, skipping...`);
     }
   }
 };
+
+parser.on('data', async (data) => {
+  try {
+    const dataFix = JSON.parse(data);
+    if ('type' in dataFix) {
+      latestDecodedData = dataFix;
+      await processAisMessage(dataFix); // Simpan data AIS ke MongoDB
+    }
+  } catch (err) {
+    console.error('AIS Decoder Error: Failed to decode sentence, skipping...');
+  }
+});
+
 
 
 
@@ -153,5 +165,8 @@ function isValidNmea(data: string): boolean {
 
 // Mulai pemrosesan queue secara terus menerus
 processQueue();
+startBatchProcessor(2000); // Proses batch setiap 2 detik
 
+// Hubungkan ke server Telnet
+connectToTelnet(HOST, AIS_PORT);
 export default router;

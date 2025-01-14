@@ -20,6 +20,7 @@ interface IAisType18Data extends Document {
   modeFlag: boolean;
   raim: boolean;
   radio: number;
+  expirationTime: Date;
 }
 
 const AisType18DataSchema = new Schema<IAisType18Data>({
@@ -42,8 +43,9 @@ const AisType18DataSchema = new Schema<IAisType18Data>({
   modeFlag: { type: Boolean, required: true },
   raim: { type: Boolean, required: true },
   radio: { type: Number, required: true },
+  expirationTime :{ type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },  
 });
-
+AisType18DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType18Data = model<IAisType18Data>('AisType18Data', AisType18DataSchema);
 
 

@@ -10,6 +10,7 @@ interface IAisType4Data extends Document {
   epfd: number;
   raimFlag: boolean;
   radioStatus: number;
+  expirationTime: Date;
 }
 
 const AisType4DataSchema = new Schema<IAisType4Data>({
@@ -22,7 +23,9 @@ const AisType4DataSchema = new Schema<IAisType4Data>({
   epfd: { type: Number, required: true },
   raimFlag: { type: Boolean, required: true },
   radioStatus: { type: Number, required: true },
-});
+  expirationTime :{ type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) }, 
 
+});
+AisType4DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType4Data = model<IAisType4Data>('AisType4Data', AisType4DataSchema);
 export default AisType4Data;

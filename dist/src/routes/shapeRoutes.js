@@ -13,4 +13,5 @@ router.delete('/shapes/:id', shapeController_1.deleteShape);
 router.get('/shapes/polygon', shapeController_1.getPolygonShapes);
 router.get('/shapes/circle', shapeController_1.getCircleShapes);
 router.get('/shapes/mmsi-coordinates', apiMiddleware_1.verifyApiKey, shapeController_1.getMmsiAndCoordinates); // Route baru untuk mmsi dan coordinates
+router.put('/shapes/:id', shapeController_1.editShape);
 exports.default = router;

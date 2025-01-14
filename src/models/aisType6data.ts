@@ -18,6 +18,8 @@ const AisType6DataSchema = new Schema<IAisType6Data>({
   retransmitFlag: { type: Boolean, required: true },
   spare: { type: Number, required: true },
   binaryData: { type: String, required: true },
+
+  
 });
 
 const AisType6Data = model<IAisType6Data>('AisType6Data', AisType6DataSchema);

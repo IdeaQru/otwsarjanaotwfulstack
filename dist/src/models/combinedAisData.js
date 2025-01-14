@@ -40,6 +40,8 @@ const CombinedAisDataSchema = new mongoose_1.Schema({
             relativeBearing: { type: Number, required: true }, // Dalam derajat
         },
     ],
+    expiresAt: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+CombinedAisDataSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 const CombinedAisData = (0, mongoose_1.model)('CombinedAisData', CombinedAisDataSchema);
 exports.default = CombinedAisData;

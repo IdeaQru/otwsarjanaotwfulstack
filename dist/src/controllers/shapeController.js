@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMmsiAndCoordinates = exports.deleteShape = exports.getCircleShapes = exports.getPolygonShapes = exports.getShapes = exports.saveShape = void 0;
+exports.editShape = exports.getMmsiAndCoordinates = exports.deleteShape = exports.getCircleShapes = exports.getPolygonShapes = exports.getShapes = exports.saveShape = void 0;
 const shapeZone_1 = __importDefault(require("../models/shapeZone"));
 const saveShape = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -79,3 +79,20 @@ const getMmsiAndCoordinates = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getMmsiAndCoordinates = getMmsiAndCoordinates;
+const editShape = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const shapeId = req.params.id; // Mengambil ID dari parameter URL
+        const updatedData = req.body; // Mengambil data baru dari body request
+        // Mencari dan memperbarui shape berdasarkan ID
+        const updatedShape = yield shapeZone_1.default.findByIdAndUpdate(shapeId, updatedData, { new: true, runValidators: true } // Mengembalikan data yang diperbarui dan memvalidasi data
+        );
+        if (!updatedShape) {
+            return res.status(404).send({ message: "Shape not found" });
+        }
+        res.status(200).send(updatedShape);
+    }
+    catch (error) {
+        res.status(400).send({ message: "Error updating shape", error });
+    }
+});
+exports.editShape = editShape;

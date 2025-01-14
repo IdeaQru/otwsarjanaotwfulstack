@@ -12,6 +12,8 @@ const AisType9DataSchema = new mongoose_1.Schema({
     courseOverGround: { type: Number, required: true },
     raimFlag: { type: Boolean, required: true },
     dte: { type: Boolean, required: true },
+    expirationTime: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+AisType9DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType9Data = (0, mongoose_1.model)('AisType9Data', AisType9DataSchema);
 exports.default = AisType9Data;

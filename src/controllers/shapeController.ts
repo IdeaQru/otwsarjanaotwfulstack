@@ -58,3 +58,25 @@ export const getMmsiAndCoordinates = async (req: Request, res: Response) => {
       res.status(500).json({ message: 'Error retrieving data', error: err });
     }
   };
+
+  export const editShape = async (req: Request, res: Response) => {
+    try {
+        const shapeId = req.params.id; // Mengambil ID dari parameter URL
+        const updatedData = req.body; // Mengambil data baru dari body request
+
+        // Mencari dan memperbarui shape berdasarkan ID
+        const updatedShape = await Shape.findByIdAndUpdate(
+            shapeId,
+            updatedData,
+            { new: true, runValidators: true } // Mengembalikan data yang diperbarui dan memvalidasi data
+        );
+
+        if (!updatedShape) {
+            return res.status(404).send({ message: "Shape not found" });
+        }
+
+        res.status(200).send(updatedShape);
+    } catch (error) {
+        res.status(400).send({ message: "Error updating shape", error });
+    }
+};

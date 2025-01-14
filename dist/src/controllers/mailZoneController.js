@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMailZones = exports.addSbnZone = void 0;
+exports.getMailZones = exports.deleteSbnZone = exports.addSbnZone = void 0;
 const mailZoneService_1 = require("../services/mailZoneService"); // Import the service
 const apiKeyService_1 = require("../services/apiKeyService");
 const nodemailer_1 = __importDefault(require("nodemailer")); // Import nodemailer
@@ -76,6 +76,49 @@ const addSbnZone = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.addSbnZone = addSbnZone;
+const deleteSbnZone = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { zoneId } = req.params;
+    try {
+        // Step 1: Fetch the zone details before deletion
+        const zone = yield mailZoneService.getMailZoneById(zoneId);
+        if (!zone) {
+            return res.status(404).json({ message: 'SBNP Zone not found.' });
+        }
+        // Step 2: Delete the zone
+        yield mailZoneService.deleteMailZone(zoneId);
+        // Step 3: Send email notification
+        const mailOptions = {
+            from: 'info@aisnesia.com', // Replace with your email address
+            to: 'info@aisnesia.com', // Replace with the recipient's email address
+            subject: 'SBNP Zone Deleted', // Subject of the email
+            text: `An SBNP zone has been deleted.
+
+Details:
+Name: ${zone.sbnpName}
+Type: ${zone.sbnpType}
+MMSI: ${zone.mmsi}
+Base Station MMSI: ${zone.baseStationMmsi}
+Longitude: ${zone.longitude}
+Latitude: ${zone.latitude}
+API Key: ${zone.selectedApiKey}`, // The body of the email
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error);
+            }
+            else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+        // Step 4: Send success response
+        res.status(200).json({ message: 'SBNP Zone deleted successfully.' });
+    }
+    catch (error) {
+        console.error('Error deleting SBNP Zone:', error.message);
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.deleteSbnZone = deleteSbnZone;
 const getMailZones = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const mailZones = yield mailZoneService.getAllMailZones();

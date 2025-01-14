@@ -14,6 +14,8 @@ const AisType11DataSchema = new mongoose_1.Schema({
     longitude: { type: Number, required: true },
     latitude: { type: Number, required: true },
     epfd: { type: Number, required: true },
+    expirationTime: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+AisType11DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType11Data = (0, mongoose_1.model)('AisType11Data', AisType11DataSchema);
 exports.default = AisType11Data;

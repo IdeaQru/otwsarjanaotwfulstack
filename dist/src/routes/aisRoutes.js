@@ -21,8 +21,10 @@ const delay_1 = require("../utils/delay");
 const combinedAisData_1 = __importDefault(require("../models/combinedAisData"));
 const aisLog_1 = __importDefault(require("../models/aisLog"));
 const gpsAisdata_1 = require("../models/gpsAisdata");
+const batchProcessor_1 = require("../services/services2/batchProcessor");
+const telnet_1 = require("../services/services2/telnet");
 const router = (0, express_1.Router)();
-const HOST = '103.24.49.238';
+const HOST = '103.24.49.138';
 const AIS_PORT = 21279;
 const parser = new ais_stream_decoder_1.default();
 let latestDecodedData = null;
@@ -87,8 +89,7 @@ const processNmeaOrAis = (line) => __awaiter(void 0, void 0, void 0, function* (
             saveGpsData(decodedNmea);
         }
         catch (err) {
-            console.log(line, "Sentence error: failed to decode");
-            yield new Promise(resolve => setTimeout(resolve, 10)); // Tambahkan delay 10ms
+            console.error(`${line}: Failed to decode NMEA sentence, skipping...`);
         }
     }
     else {
@@ -96,11 +97,22 @@ const processNmeaOrAis = (line) => __awaiter(void 0, void 0, void 0, function* (
             parser.write(line);
         }
         catch (err) {
-            console.log("Sentence error: failed to decode");
-            yield new Promise(resolve => setTimeout(resolve, 10)); // Tambahkan delay 10ms
+            console.error(`${line}: Failed to decode AIS sentence, skipping...`);
         }
     }
 });
+parser.on('data', (data) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const dataFix = JSON.parse(data);
+        if ('type' in dataFix) {
+            latestDecodedData = dataFix;
+            yield (0, aisMessageController_1.processAisMessage)(dataFix); // Simpan data AIS ke MongoDB
+        }
+    }
+    catch (err) {
+        console.error('AIS Decoder Error: Failed to decode sentence, skipping...');
+    }
+}));
 // Fungsi untuk menyimpan data GPS ke MongoDB
 const saveGpsData = (nmeaData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -156,4 +168,7 @@ function isValidNmea(data) {
 }
 // Mulai pemrosesan queue secara terus menerus
 processQueue();
+(0, batchProcessor_1.startBatchProcessor)(2000); // Proses batch setiap 2 detik
+// Hubungkan ke server Telnet
+(0, telnet_1.connectToTelnet)(HOST, AIS_PORT);
 exports.default = router;

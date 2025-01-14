@@ -18,6 +18,8 @@ const AisType21DataSchema = new mongoose_1.Schema({
     offPositionIndicator: { type: Boolean, required: true },
     raimFlag: { type: Boolean, required: true },
     virtualAidFlag: { type: Boolean, required: true },
+    expirationTime: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+AisType21DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType21Data = (0, mongoose_1.model)('AisType21Data', AisType21DataSchema);
 exports.default = AisType21Data;

@@ -21,6 +21,8 @@ const AisType18DataSchema = new mongoose_1.Schema({
     modeFlag: { type: Boolean, required: true },
     raim: { type: Boolean, required: true },
     radio: { type: Number, required: true },
+    expirationTime: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+AisType18DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType18Data = (0, mongoose_1.model)('AisType18Data', AisType18DataSchema);
 exports.default = AisType18Data;

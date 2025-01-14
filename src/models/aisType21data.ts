@@ -17,6 +17,7 @@ interface IAisType21Data extends Document {
   offPositionIndicator: boolean;
   raimFlag: boolean;
   virtualAidFlag: boolean;
+  expirationTime: Date;
 }
 
 const AisType21DataSchema = new Schema<IAisType21Data>({
@@ -36,7 +37,8 @@ const AisType21DataSchema = new Schema<IAisType21Data>({
   offPositionIndicator: { type: Boolean, required: true },
   raimFlag: { type: Boolean, required: true },
   virtualAidFlag: { type: Boolean, required: true },
+  expirationTime :{ type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) }, 
 });
-
+AisType21DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType21Data = model<IAisType21Data>('AisType21Data', AisType21DataSchema);
 export default AisType21Data;

@@ -58,5 +58,15 @@ class MailZoneService {
             }
         });
     }
+    getMailZoneById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return mailZone_1.default.findById(id);
+        });
+    }
+    deleteMailZone(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return mailZone_1.default.findByIdAndDelete(id);
+        });
+    }
 }
 exports.MailZoneService = MailZoneService;

@@ -8,7 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const index_1 = __importDefault(require("./index"));
 // Konversi PORT ke tipe number untuk memastikan tidak ada kesalahan tipe
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 80;
 index_1.default.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });

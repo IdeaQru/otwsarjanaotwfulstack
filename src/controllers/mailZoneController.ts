@@ -71,6 +71,54 @@ export const addSbnZone = async (req: Request, res: Response) => {
   }
 };
 
+
+export const deleteSbnZone = async (req: Request, res: Response) => {
+  const { zoneId } = req.params;
+
+  try {
+    // Step 1: Fetch the zone details before deletion
+    const zone = await mailZoneService.getMailZoneById(zoneId);
+
+    if (!zone) {
+      return res.status(404).json({ message: 'SBNP Zone not found.' });
+    }
+
+    // Step 2: Delete the zone
+    await mailZoneService.deleteMailZone(zoneId);
+
+    // Step 3: Send email notification
+    const mailOptions = {
+      from: 'info@aisnesia.com', // Replace with your email address
+      to: 'info@aisnesia.com', // Replace with the recipient's email address
+      subject: 'SBNP Zone Deleted', // Subject of the email
+      text: `An SBNP zone has been deleted.
+
+Details:
+Name: ${zone.sbnpName}
+Type: ${zone.sbnpType}
+MMSI: ${zone.mmsi}
+Base Station MMSI: ${zone.baseStationMmsi}
+Longitude: ${zone.longitude}
+Latitude: ${zone.latitude}
+API Key: ${zone.selectedApiKey}`, // The body of the email
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
+    // Step 4: Send success response
+    res.status(200).json({ message: 'SBNP Zone deleted successfully.' });
+  } catch (error: any) {
+    console.error('Error deleting SBNP Zone:', error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const getMailZones = async (req: Request, res: Response) => {
   try{
     const mailZones = await mailZoneService.getAllMailZones();

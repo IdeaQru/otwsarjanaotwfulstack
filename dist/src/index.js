@@ -19,6 +19,10 @@ const apiMiddleware_1 = require("./middleware/apiMiddleware");
 const node_cron_1 = __importDefault(require("node-cron"));
 const mailZoneRoutes_1 = __importDefault(require("./routes/mailZoneRoutes"));
 const apiKeyRoutes_1 = __importDefault(require("./routes/apiKeyRoutes"));
+const fs_1 = __importDefault(require("fs"));
+const https_1 = __importDefault(require("https"));
+const shipMovementRoutes_1 = __importDefault(require("./routes/shipMovementRoutes"));
+const buoysRoutes_1 = __importDefault(require("./routes/buoysRoutes"));
 // Inisialisasi Express
 const app = (0, express_1.default)();
 // Konfigurasi CORS
@@ -26,18 +30,20 @@ const corsOptions = {
     origin: '*', // Masukkan IP frontend kamu
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true // Jika menggunakan cookie atau token
+    credentials: true, // Jika menggunakan cookie atau token
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 // Serve static files
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 // Routes
+app.use('/api', shipMovementRoutes_1.default);
 app.use('/api', aisRoutes_1.default);
 app.use('/api', shapeRoutes_1.default);
 app.use('/api', authRoutes_1.default);
 app.use('/api', mailZoneRoutes_1.default);
 app.use('/api', apiKeyRoutes_1.default);
+app.use('/api', buoysRoutes_1.default);
 // Connect to database
 (0, database_1.default)().catch((err) => console.error('Failed to connect to DB', err));
 // Jalankan update API key pertama kali saat server start
@@ -46,16 +52,30 @@ app.use('/api', apiKeyRoutes_1.default);
 node_cron_1.default.schedule('0 0 * * *', () => {
     (0, apiMiddleware_1.updateApiKey)();
 });
-// Inisialisasi server HTTP dan socket.io
-const server = http_1.default.createServer(app);
-const io = new socket_io_1.Server(server, {
+// Konfigurasi sertifikat SSL
+const sslOptions = {
+    key: fs_1.default.readFileSync('C:/Users/user/key.pem'), // Path absolut ke private key
+    cert: fs_1.default.readFileSync('C:/Users/user/cert.pem'), // Path absolut ke sertifikat
+};
+// Inisialisasi server HTTPS
+const httpsServer = https_1.default.createServer(sslOptions, app);
+const io = new socket_io_1.Server(httpsServer, {
     cors: {
         origin: ['http://localhost:4200', 'http://165.154.208.232:4200'], // Domain yang diizinkan
         methods: ['GET', 'POST'],
-        credentials: true // Jika ada cookie atau token yang digunakan
-    }
+        credentials: true, // Jika ada cookie atau token yang digunakan
+    },
 });
 exports.io = io;
+// Redirect HTTP ke HTTPS
+http_1.default.createServer((req, res) => {
+    // Redirect semua permintaan HTTP ke HTTPS
+    res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+    res.end();
+}).listen(80, () => {
+    console.log('HTTP Server is running and redirecting to HTTPS on port 80');
+});
+// Angular dist path untuk serving aplikasi
 const angularDistPath = path_1.default.join(__dirname, '../angular-aisweb');
 app.use(express_1.default.static(angularDistPath));
 app.get('*', (req, res) => {
@@ -63,9 +83,9 @@ app.get('*', (req, res) => {
 });
 // Event handler untuk koneksi socket.io
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    console.log('A user connected');
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log('User disconnected');
     });
 });
 // Set up MongoDB change streams with proper typing
@@ -84,5 +104,10 @@ shapeChangeStream.on('change', (change) => {
 // Error Handling middleware
 app.use((req, res, next) => {
     res.status(404).send('Route not found');
+});
+// Jalankan server HTTPS
+const HTTPS_PORT = 443;
+httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`HTTPS Server is running on https://0.0.0.0:${HTTPS_PORT}`);
 });
 exports.default = app;

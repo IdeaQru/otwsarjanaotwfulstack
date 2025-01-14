@@ -20,7 +20,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 };
 
 export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if ((req as any).user.role !== 'admin') {
+  if ((req as any).user.role !== 'super-admin') {
     return res.status(403).json({ message: 'Access denied' });
   }
   next();

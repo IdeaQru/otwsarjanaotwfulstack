@@ -11,6 +11,8 @@ const AisType4DataSchema = new mongoose_1.Schema({
     epfd: { type: Number, required: true },
     raimFlag: { type: Boolean, required: true },
     radioStatus: { type: Number, required: true },
+    expirationTime: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+AisType4DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType4Data = (0, mongoose_1.model)('AisType4Data', AisType4DataSchema);
 exports.default = AisType4Data;

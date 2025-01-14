@@ -14,6 +14,8 @@ const AisType1_2and3DataSchema = new mongoose_1.Schema({
     navStatus: { type: Number, required: false },
     rateOfTurn: { type: Number, required: false },
     sentences: { type: [String], required: true }, // Corrected 'sentence' to 'sentences'
+    expirationTime: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
 });
+AisType1_2and3DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType1_2and3Data = (0, mongoose_1.model)('AisType1_2and3Data', AisType1_2and3DataSchema);
 exports.default = AisType1_2and3Data;

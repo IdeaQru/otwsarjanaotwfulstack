@@ -21,6 +21,7 @@ interface IAisType5Data extends Document {
   destination: string;
   dte: boolean;
   timestamp: Date;
+  expirationTime: Date;
 }
 
 const AisType5DataSchema = new Schema<IAisType5Data>({
@@ -44,7 +45,9 @@ const AisType5DataSchema = new Schema<IAisType5Data>({
   destination: { type: String, required: true },
   dte: { type: Boolean, required: true },
   timestamp: { type: Date, required: true },
+  expirationTime :{ type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) }, 
+  
 });
-
+AisType5DataSchema.index({ expirationTime: 1 }, { expireAfterSeconds: 0 });
 const AisType5Data = model<IAisType5Data>('AisType5Data', AisType5DataSchema);
 export default AisType5Data;
