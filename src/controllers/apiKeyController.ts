@@ -4,7 +4,7 @@ import ApiKeyService from '../services/apiKeyService';
 // Controller untuk membuat API Key
 export const createApiKey = async (req: Request, res: Response) => {
   try {
-    const { userId, username, email, apiKeyCount } = req.body;  // Mengambil data dari request body
+    const { userId, username, email, apiKeyCount } = req.body; 
 
     // Memanggil ApiKeyService untuk membuat API keys
     const result = await ApiKeyService.createApiKeys({

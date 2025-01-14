@@ -24,10 +24,10 @@ const app = express();
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: '*', // Masukkan IP frontend kamu
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Jika menggunakan cookie atau token
+  credentials: true, 
 };
 
 app.use(cors(corsOptions));
